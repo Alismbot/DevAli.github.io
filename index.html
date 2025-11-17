@@ -30,9 +30,12 @@
             margin-bottom: 25px;
         }
         .btn {
-            display: block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px; /* مسافة بين الأيقونة والنص */
             background: #00e676;
-            padding: 15px;
+            padding: 12px 20px;
             margin: 15px 0;
             border-radius: 10px;
             text-decoration: none;
@@ -42,6 +45,10 @@
         }
         .btn:hover {
             opacity: 0.85;
+        }
+        .btn img {
+            width: 24px; /* حجم الأيقونة */
+            vertical-align: middle;
         }
         .footer {
             margin-top: 40px;
@@ -68,8 +75,16 @@
         شكراً لدعمكم وثقتكم بنا، ونتمنى أن تستمتعوا بجميع التحديثات الجديدة.
     </p>
 
-    <a class="btn" href="https://t.me/WAMOD17">🔗 قناة التلجرام الرسمية</a>
-    <a class="btn" href="https://whatsapp.com/channel/0029Vb71THB0bIdswhCzVJ0f">🔗 قناة واتساب الرسمية</a>
+    <!-- أزرار مع أيقونات -->
+    <a class="btn" href="https://t.me/WAMOD17">
+        <img src="telegram.png" alt="Telegram"> قناة التلجرام الرسمية
+    </a>
+    <a class="btn" href="https://whatsapp.com/channel/0029Vb71THB0bIdswhCzVJ0f">
+        <img src="whatsapp.png" alt="WhatsApp"> قناة واتساب الرسمية
+    </a>
+    <a class="btn" href="https://youtube.com/@newsportintern2831?si=ITLiTxA0wY-C1PkB">
+        <img src="youtube.png" alt="YouTube"> قناة يوتيوب الرسمية
+    </a>
 
     <div class="footer">© 2025 WAMOD</div>
 </div>
