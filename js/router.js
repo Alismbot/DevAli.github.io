@@ -1,4 +1,4 @@
-// router.js: مسؤول عن تحديد الصفحة المراد عرضها
+// router.js
 function getPage() {
     const params = new URLSearchParams(window.location.search);
     return params.get("page") || "home";
@@ -9,15 +9,14 @@ function loadPage(page) {
         .then(res => res.text())
         .then(html => {
             document.getElementById("app").innerHTML = html;
-            loadTexts(page); // تحميل النصوص من JSON
-            renderButtons(); // رسم الأزرار
+            loadTexts(page);
+            renderButtons();
         })
         .catch(() => {
             document.getElementById("app").innerHTML = "<p>الصفحة غير موجودة</p>";
         });
 }
 
-// عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", () => {
     loadPage(getPage());
 });
