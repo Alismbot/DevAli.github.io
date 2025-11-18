@@ -6,37 +6,55 @@
     <title>WAMOD</title>
 
     <style>
-        body { background: #0f0f0f; margin: 0; padding: 0; }
+        body {
+            background: #0f0f0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
         nav {
-            background: #111;
+            background: #00e676; /* أخضر جميل */
             padding: 15px;
             display: flex;
             justify-content: center;
             gap: 25px;
         }
         nav a {
-            color: #00e676;
+            color: #000;
             text-decoration: none;
             font-size: 18px;
             font-weight: bold;
         }
-        iframe {
-            width: 100%;
-            height: calc(100vh - 70px);
-            border: none;
+        #app {
+            padding: 20px;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #777;
         }
     </style>
 </head>
 <body>
 
 <nav>
-    <a href="home.html">الرئيسية</a>
-    <a href="downloads.html">التحميلات</a>
-    <a href="about.html">من نحن</a>
-    <a href="support.html">الدعم</a>
+    <a href="?page=home">الرئيسية</a>
+    <a href="?page=downloads">التحميلات</a>
+    <a href="?page=about">من نحن</a>
+    <a href="?page=support">الدعم</a>
 </nav>
 
-<iframe src="home.html"></iframe>
+<div id="app">
+    جاري تحميل الصفحة...
+</div>
+
+<div class="footer">© 2025 WAMOD</div>
+
+<script src="js/socialButtons.js"></script>
+<script src="js/router.js"></script>
+<script src="js/loader.js"></script>
 
 </body>
 </html>
