@@ -4,16 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>WAMOD</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #0f0f0f;
-            color: #fff;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
 
+    <style>
+        body { background: #0f0f0f; margin: 0; padding: 0; }
         nav {
             background: #111;
             padding: 15px;
@@ -21,62 +14,29 @@
             justify-content: center;
             gap: 25px;
         }
-
         nav a {
             color: #00e676;
             text-decoration: none;
             font-size: 18px;
             font-weight: bold;
         }
-
-        #app {
-            margin-top: 20px;
-            padding: 20px;
-        }
-
-        .social-buttons {
-            margin-top: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .social-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #00e676;
-            padding: 12px 18px;
-            border-radius: 10px;
-            color: #000;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 17px;
-            width: 260px;
-            justify-content: center;
-        }
-
-        .social-btn img {
-            width: 22px;
-            height: 22px;
+        iframe {
+            width: 100%;
+            height: calc(100vh - 70px);
+            border: none;
         }
     </style>
 </head>
 <body>
 
 <nav>
-    <a href="?page=home">الرئيسية</a>
-    <a href="?page=downloads">التحميلات</a>
-    <a href="?page=about">من نحن</a>
-    <a href="?page=support">الدعم</a>
+    <a href="home.html">الرئيسية</a>
+    <a href="downloads.html">التحميلات</a>
+    <a href="about.html">من نحن</a>
+    <a href="support.html">الدعم</a>
 </nav>
 
-<div id="app">جاري التحميل...</div>
-
-<script src="js/socialButtons.js"></script>
-<script src="js/loader.js"></script>
-<script src="js/router.js"></script>
+<iframe src="home.html"></iframe>
 
 </body>
 </html>
