@@ -1,14 +1,51 @@
-<h1 style="text-align:center; font-size:32px; margin-bottom:20px;">
-    تحميل فيديوهات Insta و TikTok و YouTube
-</h1>
+<h1 data-text="title"></h1>
+<p data-text="description"></p>
 
-<div class="download-box" style="text-align:center;">
+<div class="download-box" style="text-align:center; margin-top:20px;">
     <input id="videoInput" type="text" placeholder="ألصق رابط الفيديو هنا">
     <br><br>
     <button id="instaBtn" class="btn">تحميل من Instagram</button>
     <button id="tiktokBtn" class="btn">تحميل من TikTok</button>
     <button id="ytBtn" class="btn">تحميل من YouTube</button>
 </div>
+
+<style>
+.download-box {
+    background: #111;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 12px;
+    max-width: 500px;
+    text-align: center;
+}
+
+.download-box input {
+    width: 90%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.download-box .btn {
+    display: inline-block;
+    background: #00e676;
+    color: #000;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 5px;
+    border: none;
+}
+
+.download-box .btn:hover {
+    background-color: #00c75a;
+    color: #fff;
+}
+</style>
 
 <script>
 const input = document.getElementById("videoInput");
