@@ -1,19 +1,38 @@
-document.getElementById("social-buttons").innerHTML = `
-    <a href="https://t.me/WAMOD17" style="
-        display:inline-block; background:#00e676; padding:10px 20px;
-        margin:10px; border-radius:10px; color:black; font-weight:bold;">
-        <img src="icons/telegram.png" width="22"> تلجرام
-    </a>
+// socialButtons.js: الأزرار مع الأيقونات
+function renderButtons() {
+    const container = document.getElementById("social-buttons");
+    if (!container) return;
 
-    <a href="https://whatsapp.com/channel/0029Vb71THB0bIdswhCzVJ0f" style="
-        display:inline-block; background:#00e676; padding:10px 20px;
-        margin:10px; border-radius:10px; color:black; font-weight:bold;">
-        <img src="icons/whatsapp.png" width="22"> واتساب
-    </a>
+    container.innerHTML = `
+        <a class="btn" href="https://t.me/WAMOD17">
+            <img src="telegram.png" alt="Telegram"> قناة التلجرام الرسمية
+        </a>
+        <a class="btn" href="https://whatsapp.com/channel/0029Vb71THB0bIdswhCzVJ0f">
+            <img src="whatsapp.png" alt="WhatsApp"> قناة واتساب الرسمية
+        </a>
+        <a class="btn" href="https://youtube.com/@newsportintern2831?si=ITLiTxA0wY-C1PkB">
+            <img src="youtube.png" alt="YouTube"> قناة يوتيوب الرسمية
+        </a>
+    `;
 
-    <a href="https://youtube.com/@newsportintern2831" style="
-        display:inline-block; background:#00e676; padding:10px 20px;
-        margin:10px; border-radius:10px; color:black; font-weight:bold;">
-        <img src="icons/youtube.png" width="22"> يوتيوب
-    </a>
-`;
+    // تنسيق الأزرار
+    document.querySelectorAll(".btn").forEach(btn => {
+        btn.style.display = "inline-flex";
+        btn.style.alignItems = "center";
+        btn.style.justifyContent = "center";
+        btn.style.gap = "10px";
+        btn.style.background = "#00e676";
+        btn.style.color = "#000";
+        btn.style.fontWeight = "bold";
+        btn.style.fontSize = "16px";
+        btn.style.padding = "10px 15px";
+        btn.style.margin = "10px";
+        btn.style.borderRadius = "8px";
+        btn.style.textDecoration = "none";
+    });
+
+    document.querySelectorAll(".btn img").forEach(img => {
+        img.style.width = "24px";
+        img.style.verticalAlign = "middle";
+    });
+}
