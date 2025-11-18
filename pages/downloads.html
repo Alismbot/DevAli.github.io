@@ -1,7 +1,72 @@
 <h1 data-text="title"></h1>
 <p data-text="description"></p>
 
-<div style="margin-top:20px;">
-    <a class="btn" href="#" data-text="download_last"></a>
-    <a class="btn" href="#" data-text="download_old"></a>
+<!-- تحميل انستغرام -->
+<div class="download-box">
+    <h3 data-text="insta_title"></h3>
+    <input id="instaInput" type="text" placeholder="ألصق رابط الانستغرام هنا">
+    <button onclick="downloadInsta()" class="btn">تحميل</button>
 </div>
+
+<!-- تحميل تيك توك -->
+<div class="download-box">
+    <h3 data-text="tiktok_title"></h3>
+    <input id="tiktokInput" type="text" placeholder="ألصق رابط تيك توك هنا">
+    <button onclick="downloadTiktok()" class="btn">تحميل</button>
+</div>
+
+<!-- تحميل يوتيوب -->
+<div class="download-box">
+    <h3 data-text="youtube_title"></h3>
+    <input id="ytInput" type="text" placeholder="ألصق رابط يوتيوب هنا">
+    <button onclick="downloadYT()" class="btn">تحميل</button>
+</div>
+
+<style>
+    .download-box {
+        background: #111;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 10px;
+    }
+
+    .download-box input {
+        width: 75%;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        margin-bottom: 10px;
+    }
+
+    .download-box .btn {
+        display: inline-block;
+        background: #00e676;
+        color: #000;
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        text-decoration: none;
+    }
+</style>
+
+<script>
+function downloadInsta() {
+    const link = document.getElementById("instaInput").value;
+    if (!link.trim()) return alert("الرجاء وضع الرابط!");
+    window.open("https://saveinsta.app/ar?url=" + encodeURIComponent(link));
+}
+
+function downloadTiktok() {
+    const link = document.getElementById("tiktokInput").value;
+    if (!link.trim()) return alert("الرجاء وضع الرابط!");
+    window.open("https://ttsave.app/download?url=" + encodeURIComponent(link));
+}
+
+function downloadYT() {
+    const link = document.getElementById("ytInput").value;
+    if (!link.trim()) return alert("الرجاء وضع الرابط!");
+    window.open("https://y2meta.app/ar/youtube/" + encodeURIComponent(link));
+}
+</script>
