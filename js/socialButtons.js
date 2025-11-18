@@ -1,26 +1,19 @@
-// socialButtons.js
-// هذا الملف يحتوي على جميع أزرار السوشيال مع أيقوناتها
-// يمكن استدعاؤه في أي صفحة بسهولة
+document.getElementById("social-buttons").innerHTML = `
+    <a href="https://t.me/WAMOD17" style="
+        display:inline-block; background:#00e676; padding:10px 20px;
+        margin:10px; border-radius:10px; color:black; font-weight:bold;">
+        <img src="icons/telegram.png" width="22"> تلجرام
+    </a>
 
-function getSocialButtonsHTML() {
-    return `
-        <div class="social-buttons">
+    <a href="https://whatsapp.com/channel/0029Vb71THB0bIdswhCzVJ0f" style="
+        display:inline-block; background:#00e676; padding:10px 20px;
+        margin:10px; border-radius:10px; color:black; font-weight:bold;">
+        <img src="icons/whatsapp.png" width="22"> واتساب
+    </a>
 
-            <a class="social-btn" href="https://t.me/WAMOD17" target="_blank">
-                <img src="icons/telegram.png" alt="Telegram">
-                قناة التلجرام الرسمية
-            </a>
-
-            <a class="social-btn" href="https://whatsapp.com/channel/0029Vb71THB0bIdswhCzVJ0f" target="_blank">
-                <img src="icons/whatsapp.png" alt="WhatsApp">
-                قناة واتساب الرسمية
-            </a>
-
-            <a class="social-btn" href="https://youtube.com/@newsportintern2831" target="_blank">
-                <img src="icons/youtube.png" alt="YouTube">
-                قناة اليوتيوب
-            </a>
-
-        </div>
-    `;
-}
+    <a href="https://youtube.com/@newsportintern2831" style="
+        display:inline-block; background:#00e676; padding:10px 20px;
+        margin:10px; border-radius:10px; color:black; font-weight:bold;">
+        <img src="icons/youtube.png" width="22"> يوتيوب
+    </a>
+`;
