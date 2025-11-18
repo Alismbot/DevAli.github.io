@@ -1,22 +1,19 @@
-// router.js
-function getPage() {
+async function loadPage() {
     const params = new URLSearchParams(window.location.search);
-    return params.get("page") || "home";
+    const page = params.get("page") || "home";
+
+    const app = document.getElementById("app");
+
+    try {
+        const html = await fetch(`pages/${page}.html`).then(r => r.text());
+        app.innerHTML = html;
+
+        const texts = await fetch(`texts/${page}.json`).then(r => r.json());
+        applyTexts(texts);
+
+    } catch (e) {
+        app.innerHTML = "<h2>⚠️ الصفحة غير موجودة</h2>";
+    }
 }
 
-function loadPage(page) {
-    fetch(`pages/${page}.html`)
-        .then(res => res.text())
-        .then(html => {
-            document.getElementById("app").innerHTML = html;
-            loadTexts(page);
-            renderButtons();
-        })
-        .catch(() => {
-            document.getElementById("app").innerHTML = "<p>الصفحة غير موجودة</p>";
-        });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    loadPage(getPage());
-});
+loadPage();
