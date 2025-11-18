@@ -6,6 +6,11 @@
     <input id="videoInput" type="text" placeholder="ألصق رابط الفيديو هنا">
     <br>
     <button id="searchBtn" class="btn">بحث</button>
+
+    <!-- روابط التحميل المخفية -->
+    <a id="instaLink" href="" target="_blank" style="display:none;"></a>
+    <a id="tiktokLink" href="" target="_blank" style="display:none;"></a>
+    <a id="ytLink" href="" target="_blank" style="display:none;"></a>
 </div>
 
 <style>
@@ -45,20 +50,20 @@ document.getElementById("searchBtn").onclick = () => {
     const link = document.getElementById("videoInput").value.trim();
     if (!link) return alert("الرجاء وضع الرابط!");
 
-    let downloadUrl = "";
-
-    if (link.includes("tiktok.com")) {
-        downloadUrl = "https://snaptik.app/en2?url=" + encodeURIComponent(link);
+    if (link.includes("instagram.com")) {
+        const insta = document.getElementById("instaLink");
+        insta.href = "https://sssinstagram.com/reels-downloader?url=" + encodeURIComponent(link);
+        insta.click();
+    } else if (link.includes("tiktok.com")) {
+        const tiktok = document.getElementById("tiktokLink");
+        tiktok.href = "https://snaptik.app/en2?url=" + encodeURIComponent(link);
+        tiktok.click();
     } else if (link.includes("youtube.com") || link.includes("youtu.be")) {
-        downloadUrl = "https://en1.savefrom.net/1-youtube-video-downloader-13sg/?url=" + encodeURIComponent(link);
-    } else if (link.includes("instagram.com")) {
-        downloadUrl = "https://sssinstagram.com/reels-downloader?url=" + encodeURIComponent(link);
+        const yt = document.getElementById("ytLink");
+        yt.href = "https://en1.savefrom.net/1-youtube-video-downloader-13sg/?url=" + encodeURIComponent(link);
+        yt.click();
     } else {
         alert("الرابط غير مدعوم!");
-        return;
     }
-
-    // يفتح الموقع الخارجي في نافذة جديدة
-    window.open(downloadUrl, "_blank");
 };
 </script>
