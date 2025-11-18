@@ -1,3 +1,7 @@
+// socialButtons.js
+// هذا الملف يحتوي على جميع أزرار السوشيال مع أيقوناتها
+// يمكن استدعاؤه في أي صفحة بسهولة
+
 function getSocialButtonsHTML() {
     return `
         <div class="social-buttons">
@@ -8,7 +12,7 @@ function getSocialButtonsHTML() {
             </a>
 
             <a class="social-btn" href="https://whatsapp.com/channel/0029Vb71THB0bIdswhCzVJ0f" target="_blank">
-                <img src="icons/whatsapp.png" alt="Whatsapp">
+                <img src="icons/whatsapp.png" alt="WhatsApp">
                 قناة واتساب الرسمية
             </a>
 
