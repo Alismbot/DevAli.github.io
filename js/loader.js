@@ -1,15 +1,11 @@
-// loader.js
-// هذا الملف مسؤول عن تحميل ملفات JSON الخاصة بكل صفحة
-
-async function loadJSON(page) {
-    try {
-        const response = await fetch(`data/${page}.json`);
-        if (!response.ok) {
-            throw new Error('فشل تحميل البيانات');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error("خطأ في تحميل JSON:", error);
-        return { title: "خطأ", description: "تعذر تحميل المحتوى." };
-    }
+// loader.js: مسؤول عن جلب النصوص JSON لكل صفحة
+function loadTexts(page) {
+    fetch(`js/texts-${page}.json`)
+        .then(res => res.json())
+        .then(data => {
+            for (const key in data) {
+                const el = document.getElementById(key);
+                if (el) el.innerHTML = data[key];
+            }
+        });
 }
