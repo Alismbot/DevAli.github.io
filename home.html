@@ -7,21 +7,63 @@
 
     <style>
         body {
-            background: #0f0f0f; color: white; font-family: Arial; text-align:center;
+            background: #0f0f0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
             padding: 20px;
+            margin: 0;
         }
-        h1 { color: #00e676; }
-        p { color: #ccc; line-height: 1.7; }
-        .buttons { margin-top: 25px; }
+        nav {
+            background: #111;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
+        nav a {
+            color: #00e676;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        h1 {
+            color: #00e676;
+            margin-top: 20px;
+        }
+        p {
+            color: #ccc;
+            line-height: 1.7;
+            margin: 15px 0;
+        }
+        .buttons {
+            margin-top: 25px;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #777;
+        }
     </style>
 </head>
 <body>
+
+<!-- شريط التنقل -->
+<nav>
+    <a href="home.html">الرئيسية</a>
+    <a href="downloads.html">التحميلات</a>
+    <a href="about.html">من نحن</a>
+    <a href="support.html">الدعم</a>
+</nav>
 
 <h1>WAMOD</h1>
 
 <p id="home-text">جاري تحميل النص…</p>
 
+<!-- أزرار الأيقونات -->
 <div class="buttons" id="social-buttons"></div>
+
+<div class="footer">© 2025 WAMOD</div>
 
 <script src="js/socialButtons.js"></script>
 <script>
