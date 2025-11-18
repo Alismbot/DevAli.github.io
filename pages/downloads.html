@@ -4,13 +4,10 @@
 
 <div class="download-box" style="text-align:center;">
     <input id="videoInput" type="text" placeholder="ألصق رابط الفيديو هنا">
-    <br>
-    <button id="searchBtn" class="btn">بحث</button>
-
-    <!-- روابط التحميل المخفية -->
-    <a id="instaLink" href="" target="_blank" style="display:none;"></a>
-    <a id="tiktokLink" href="" target="_blank" style="display:none;"></a>
-    <a id="ytLink" href="" target="_blank" style="display:none;"></a>
+    <br><br>
+    <button id="instaBtn" class="btn">تحميل من Instagram</button>
+    <button id="tiktokBtn" class="btn">تحميل من TikTok</button>
+    <button id="ytBtn" class="btn">تحميل من YouTube</button>
 </div>
 
 <style>
@@ -20,6 +17,7 @@
     margin: 20px auto;
     border-radius: 12px;
     max-width: 500px;
+    text-align: center;
 }
 
 .download-box input {
@@ -27,7 +25,7 @@
     padding: 12px;
     border-radius: 8px;
     border: none;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     font-size: 16px;
 }
 
@@ -35,35 +33,34 @@
     display: inline-block;
     background: #00e676;
     color: #000;
-    padding: 12px 25px;
+    padding: 12px 20px;
     border-radius: 10px;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
     cursor: pointer;
-    text-decoration: none;
+    margin: 5px;
     border: none;
 }
 </style>
 
 <script>
-document.getElementById("searchBtn").onclick = () => {
-    const link = document.getElementById("videoInput").value.trim();
-    if (!link) return alert("الرجاء وضع الرابط!");
+function openDownload(url) {
+    if (!url.trim()) return alert("الرجاء وضع الرابط!");
+    window.open(url, "_blank");
+}
 
-    if (link.includes("instagram.com")) {
-        const insta = document.getElementById("instaLink");
-        insta.href = "https://sssinstagram.com/reels-downloader?url=" + encodeURIComponent(link);
-        insta.click();
-    } else if (link.includes("tiktok.com")) {
-        const tiktok = document.getElementById("tiktokLink");
-        tiktok.href = "https://snaptik.app/en2?url=" + encodeURIComponent(link);
-        tiktok.click();
-    } else if (link.includes("youtube.com") || link.includes("youtu.be")) {
-        const yt = document.getElementById("ytLink");
-        yt.href = "https://en1.savefrom.net/1-youtube-video-downloader-13sg/?url=" + encodeURIComponent(link);
-        yt.click();
-    } else {
-        alert("الرابط غير مدعوم!");
-    }
+document.getElementById("instaBtn").onclick = () => {
+    const link = document.getElementById("videoInput").value.trim();
+    openDownload("https://sssinstagram.com/reels-downloader?url=" + encodeURIComponent(link));
+};
+
+document.getElementById("tiktokBtn").onclick = () => {
+    const link = document.getElementById("videoInput").value.trim();
+    openDownload("https://snaptik.app/en2?url=" + encodeURIComponent(link));
+};
+
+document.getElementById("ytBtn").onclick = () => {
+    const link = document.getElementById("videoInput").value.trim();
+    openDownload("https://en1.savefrom.net/1-youtube-video-downloader-13sg/?url=" + encodeURIComponent(link));
 };
 </script>
