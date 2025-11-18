@@ -1,4 +1,4 @@
-// loader.js: مسؤول عن جلب النصوص JSON لكل صفحة
+// loader.js
 function loadTexts(page) {
     fetch(`js/texts-${page}.json`)
         .then(res => res.json())
