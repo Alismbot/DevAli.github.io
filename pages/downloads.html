@@ -1,74 +1,59 @@
 <h1 data-text="title"></h1>
 <p data-text="description"></p>
 
-<!-- تحميل انستغرام -->
+<!-- حقل واحد لتحميل الفيديوهات -->
 <div class="download-box">
-    <h3 data-text="insta_title"></h3>
-    <input id="instaInput" type="text" placeholder="ألصق رابط الانستغرام هنا">
-    <a id="instaBtn" class="btn" target="_blank">تحميل</a>
-</div>
-
-<!-- تحميل تيك توك -->
-<div class="download-box">
-    <h3 data-text="tiktok_title"></h3>
-    <input id="tiktokInput" type="text" placeholder="ألصق رابط تيك توك هنا">
-    <a id="tiktokBtn" class="btn" target="_blank">تحميل</a>
-</div>
-
-<!-- تحميل يوتيوب -->
-<div class="download-box">
-    <h3 data-text="youtube_title"></h3>
-    <input id="ytInput" type="text" placeholder="ألصق رابط يوتيوب هنا">
-    <a id="ytBtn" class="btn" target="_blank">تحميل</a>
+    <h3 data-text="universal_title"></h3>
+    <input id="videoInput" type="text" placeholder="ألصق رابط الفيديو هنا">
+    <a id="downloadBtn" class="btn" target="_blank">تحميل</a>
 </div>
 
 <style>
-    .download-box {
-        background: #111;
-        padding: 15px;
-        margin: 15px 0;
-        border-radius: 10px;
-    }
+.download-box {
+    background: #111;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 10px;
+}
 
-    .download-box input {
-        width: 75%;
-        padding: 10px;
-        border-radius: 8px;
-        border: none;
-        margin-bottom: 10px;
-    }
+.download-box input {
+    width: 75%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 10px;
+}
 
-    .download-box .btn {
-        display: inline-block;
-        background: #00e676;
-        color: #000;
-        padding: 8px 15px;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-        text-decoration: none;
-    }
+.download-box .btn {
+    display: inline-block;
+    background: #00e676;
+    color: #000;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+}
 </style>
 
 <script>
-document.getElementById("instaBtn").onclick = () => {
-    const link = document.getElementById("instaInput").value;
-    if (!link.trim()) return alert("الرجاء وضع الرابط!");
-    document.getElementById("instaBtn").href =
-        "https://saveinsta.app/ar?url=" + encodeURIComponent(link);
-};
+document.getElementById("downloadBtn").onclick = () => {
+    const link = document.getElementById("videoInput").value.trim();
+    if (!link) return alert("الرجاء وضع الرابط!");
 
-document.getElementById("tiktokBtn").onclick = () => {
-    const link = document.getElementById("tiktokInput").value;
-    if (!link.trim()) return alert("الرجاء وضع الرابط!");
-    document.getElementById("tiktokBtn").href =
-        "https://ttsave.app/download?url=" + encodeURIComponent(link);
-};
+    let downloadUrl = "";
 
-document.getElementById("ytBtn").onclick = () => {
-    const link = document.getElementById("ytInput").value;
-    if (!link.trim()) return alert("الرجاء وضع الرابط!");
-    document.getElementById("ytBtn").href =
-        "https://y2meta.app/ar/youtube/" + encodeURIComponent(link);
+    if (link.includes("tiktok.com")) {
+        downloadUrl = "https://snaptik.app/en2?url=" + encodeURIComponent(link);
+    } else if (link.includes("youtube.com") || link.includes("youtu.be")) {
+        downloadUrl = "https://en1.savefrom.net/1-youtube-video-downloader-13sg/?url=" + encodeURIComponent(link);
+    } else if (link.includes("instagram.com")) {
+        downloadUrl = "https://sssinstagram.com/reels-downloader?url=" + encodeURIComponent(link);
+    } else {
+        alert("الرابط غير مدعوم!");
+        return;
+    }
+
+    document.getElementById("downloadBtn").href = downloadUrl;
 };
 </script>
