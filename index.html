@@ -34,6 +34,35 @@
             margin-top: 20px;
             padding: 20px;
         }
+
+        /* أزرار السوشيال */
+        .social-buttons {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #00e676;
+            padding: 12px 18px;
+            border-radius: 10px;
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 17px;
+            width: 260px;
+            justify-content: center;
+        }
+
+        .social-btn img {
+            width: 22px;
+            height: 22px;
+        }
     </style>
 </head>
 <body>
@@ -47,12 +76,9 @@
 
 <div id="app">جاري التحميل...</div>
 
-<!-- ملف الأزرار والايقونات -->
 <script src="js/socialButtons.js"></script>
-
-<!-- الراوتر واللودر -->
-<script src="js/router.js"></script>
 <script src="js/loader.js"></script>
+<script src="js/router.js"></script>
 
 </body>
 </html>
