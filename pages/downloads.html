@@ -5,21 +5,21 @@
 <div class="download-box">
     <h3 data-text="insta_title"></h3>
     <input id="instaInput" type="text" placeholder="ألصق رابط الانستغرام هنا">
-    <button onclick="downloadInsta()" class="btn">تحميل</button>
+    <a id="instaBtn" class="btn" target="_blank">تحميل</a>
 </div>
 
 <!-- تحميل تيك توك -->
 <div class="download-box">
     <h3 data-text="tiktok_title"></h3>
     <input id="tiktokInput" type="text" placeholder="ألصق رابط تيك توك هنا">
-    <button onclick="downloadTiktok()" class="btn">تحميل</button>
+    <a id="tiktokBtn" class="btn" target="_blank">تحميل</a>
 </div>
 
 <!-- تحميل يوتيوب -->
 <div class="download-box">
     <h3 data-text="youtube_title"></h3>
     <input id="ytInput" type="text" placeholder="ألصق رابط يوتيوب هنا">
-    <button onclick="downloadYT()" class="btn">تحميل</button>
+    <a id="ytBtn" class="btn" target="_blank">تحميل</a>
 </div>
 
 <style>
@@ -46,27 +46,29 @@
         border-radius: 8px;
         font-weight: bold;
         cursor: pointer;
-        border: none;
         text-decoration: none;
     }
 </style>
 
 <script>
-function downloadInsta() {
+document.getElementById("instaBtn").onclick = () => {
     const link = document.getElementById("instaInput").value;
     if (!link.trim()) return alert("الرجاء وضع الرابط!");
-    window.open("https://saveinsta.app/ar?url=" + encodeURIComponent(link));
-}
+    document.getElementById("instaBtn").href =
+        "https://saveinsta.app/ar?url=" + encodeURIComponent(link);
+};
 
-function downloadTiktok() {
+document.getElementById("tiktokBtn").onclick = () => {
     const link = document.getElementById("tiktokInput").value;
     if (!link.trim()) return alert("الرجاء وضع الرابط!");
-    window.open("https://ttsave.app/download?url=" + encodeURIComponent(link));
-}
+    document.getElementById("tiktokBtn").href =
+        "https://ttsave.app/download?url=" + encodeURIComponent(link);
+};
 
-function downloadYT() {
+document.getElementById("ytBtn").onclick = () => {
     const link = document.getElementById("ytInput").value;
     if (!link.trim()) return alert("الرجاء وضع الرابط!");
-    window.open("https://y2meta.app/ar/youtube/" + encodeURIComponent(link));
-}
+    document.getElementById("ytBtn").href =
+        "https://y2meta.app/ar/youtube/" + encodeURIComponent(link);
+};
 </script>
