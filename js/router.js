@@ -1,21 +1,23 @@
-// router.js
-// هذا الملف مسؤول عن التوجيه بين الصفحات
-
-async function loadPage() {
+// router.js: مسؤول عن تحديد الصفحة المراد عرضها
+function getPage() {
     const params = new URLSearchParams(window.location.search);
-    const page = params.get("page") || "home";
-
-    try {
-        // استدعاء ملف الصفحة المطلوب
-        const module = await import(`./pages/${page}.js`);
-        module.render();
-    } catch (e) {
-        console.error("الصفحة غير موجودة:", e);
-        document.getElementById("app").innerHTML = "<h2>❌ الصفحة غير موجودة</h2>";
-    }
+    return params.get("page") || "home";
 }
 
-// تحميل الصفحة عند فتح الموقع
-window.onload = loadPage;
-// تحميل الصفحة عند استخدام زر العودة في المتصفح
-window.onpopstate = loadPage;
+function loadPage(page) {
+    fetch(`pages/${page}.html`)
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("app").innerHTML = html;
+            loadTexts(page); // تحميل النصوص من JSON
+            renderButtons(); // رسم الأزرار
+        })
+        .catch(() => {
+            document.getElementById("app").innerHTML = "<p>الصفحة غير موجودة</p>";
+        });
+}
+
+// عند تحميل الصفحة
+document.addEventListener("DOMContentLoaded", () => {
+    loadPage(getPage());
+});
