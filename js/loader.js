@@ -1,6 +1,4 @@
-function applyTexts(dictionary) {
-    for (const key in dictionary) {
-        const element = document.querySelector(`[data-text='${key}']`);
-        if (element) element.innerHTML = dictionary[key];
-    }
+async function loadJSON(page) {
+    const response = await fetch(`data/${page}.json`);
+    return await response.json();
 }
