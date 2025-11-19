@@ -2,11 +2,19 @@
 <p data-text="description"></p>
 
 <div class="download-box" style="text-align:center; margin-top:20px;">
-    <input id="videoInput" type="text" placeholder="ألصق رابط الفيديو هنا">
-    <br><br>
-    <button id="instaBtn" class="btn">تحميل من Instagram</button>
-    <button id="tiktokBtn" class="btn">تحميل من TikTok</button>
-    <button id="ytBtn" class="btn">تحميل من YouTube</button>
+
+    <a class="btn" href="https://sssinstagram.com/reels-downloader" target="_blank">
+        <img src="instagram.png" class="icon"> تحميل من Instagram
+    </a>
+
+    <a class="btn" href="https://snaptik.app/en2" target="_blank">
+        <img src="tiktok.png" class="icon"> تحميل من TikTok
+    </a>
+
+    <a class="btn" href="https://en1.savefrom.net/1-youtube-video-downloader-13sg/" target="_blank">
+        <img src="youtube.png" class="icon"> تحميل من YouTube
+    </a>
+
 </div>
 
 <style>
@@ -19,25 +27,19 @@
     text-align: center;
 }
 
-.download-box input {
-    width: 90%;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    margin-bottom: 20px;
-    font-size: 16px;
-}
-
 .download-box .btn {
-    display: inline-block;
-    background: #00e676;
-    color: #000;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #111;
+    color: #00e676;
     padding: 12px 20px;
     border-radius: 10px;
     font-weight: bold;
     font-size: 16px;
     cursor: pointer;
     margin: 5px;
+    text-decoration: none;
     border: none;
 }
 
@@ -45,23 +47,9 @@
     background-color: #00c75a;
     color: #fff;
 }
+
+.download-box .btn img.icon {
+    width: 20px;
+    height: 20px;
+}
 </style>
-
-<script>
-const input = document.getElementById("videoInput");
-
-document.getElementById("instaBtn").onclick = () => {
-    if (!input.value.trim()) return alert("الرجاء وضع الرابط!");
-    window.open("https://sssinstagram.com/reels-downloader?url=" + encodeURIComponent(input.value), "_blank");
-};
-
-document.getElementById("tiktokBtn").onclick = () => {
-    if (!input.value.trim()) return alert("الرجاء وضع الرابط!");
-    window.open("https://snaptik.app/en2?url=" + encodeURIComponent(input.value), "_blank");
-};
-
-document.getElementById("ytBtn").onclick = () => {
-    if (!input.value.trim()) return alert("الرجاء وضع الرابط!");
-    window.open("https://en1.savefrom.net/1-youtube-video-downloader-13sg/?url=" + encodeURIComponent(input.value), "_blank");
-};
-</script>
