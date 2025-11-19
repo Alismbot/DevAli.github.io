@@ -1,0 +1,90 @@
+<div style="text-align:center; margin-bottom:20px;">
+    <button id="tab-iframe" class="tab active">ألعاب مدمجة</button>
+    <button id="tab-html5" class="tab">ألعاب HTML5</button>
+</div>
+
+<style>
+    .tab {
+        background: #111;
+        color: #00e676;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        margin: 3px;
+        transition: 0.2s;
+    }
+    .tab.active {
+        background: #00e676;
+        color: #111;
+        font-weight: bold;
+    }
+
+    .game-box {
+        background: #111;
+        padding: 10px;
+        margin: 10px auto;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 450px;
+    }
+
+    iframe {
+        width: 100%;
+        height: 600px;
+        border: none;
+        border-radius: 10px;
+    }
+</style>
+
+<div id="iframe-games">
+    <h2>🎮 ألعاب مدمجة (iFrame)</h2>
+
+    <!-- لعبة 1: Flappy Bird -->
+    <div class="game-box">
+        <h3>Flappy Bird</h3>
+        <iframe src="https://games.construct.net/133/latest"></iframe>
+    </div>
+
+    <!-- لعبة 2: Car Rush -->
+    <div class="game-box">
+        <h3>سباق السيارات</h3>
+        <iframe src="https://funhtml5games.com?embed=car"></iframe>
+    </div>
+
+    <!-- لعبة 3: Helix Jump -->
+    <div class="game-box">
+        <h3>لعبة الكرة الساقطة</h3>
+        <iframe src="https://html5.gamedistribution.com/1b8fdafbf0db4ba2b6f4320d06c938ba/"></iframe>
+    </div>
+</div>
+
+<div id="html5-games" style="display:none;">
+    <h2>🕹️ ألعاب HTML5</h2>
+    <p>لا توجد ألعاب HTML5 مرفوعة بعد — سيتم إضافتها لاحقًا.</p>
+</div>
+
+<script>
+    const tabIframe = document.getElementById("tab-iframe");
+    const tabHtml5 = document.getElementById("tab-html5");
+
+    const iframeGames = document.getElementById("iframe-games");
+    const html5Games = document.getElementById("html5-games");
+
+    tabIframe.onclick = () => {
+        tabIframe.classList.add("active");
+        tabHtml5.classList.remove("active");
+
+        iframeGames.style.display = "block";
+        html5Games.style.display = "none";
+    };
+
+    tabHtml5.onclick = () => {
+        tabHtml5.classList.add("active");
+        tabIframe.classList.remove("active");
+
+        iframeGames.style.display = "none";
+        html5Games.style.display = "block";
+    };
+</script>
