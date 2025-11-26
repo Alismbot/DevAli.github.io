@@ -21,6 +21,18 @@
 
     <!-- النص الإضافي أسفل الأزرار -->
     <p data-text="extra" class="extra-text"></p>
+
+    <!-- ====== TEMPLATE جاهز لإضافة نسخة جديدة ====== -->
+    <div class="app-box">
+        <a href="data/Gbwa.html"> 
+            <img src="assets/Down/mmx8.png" class="big-app-image">
+        </a>
+
+        <p class="app-desc">
+            اضغط على الصورة للانتقال مباشرة إلى صفحة تحميل GBWhatsApp Pro v23.96
+        </p>
+    </div>
+    <!-- ====== END TEMPLATE ====== -->
 </div>
 
 <style>
@@ -53,7 +65,6 @@
     margin-bottom: 30px;
 }
 
-/* تنسيق النص الإضافي */
 .extra-text {
     font-size: 18px;
     margin-top: 20px;
@@ -82,5 +93,33 @@
 .social-buttons .btn img.icon {
     width: 25px;
     height: 25px;
+}
+
+/* ====== CSS للبلوك الجديد ====== */
+.app-box {
+    background: #111;
+    padding: 20px;
+    margin: 30px auto;
+    border-radius: 15px;
+    max-width: 700px;
+    text-align: center;
+}
+
+.big-app-image {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.big-app-image:hover {
+    transform: scale(1.03);
+}
+
+.app-desc {
+    margin-top: 15px;
+    font-size: 18px;
+    color: #ffd700;
 }
 </style>
