@@ -19,10 +19,20 @@
         </a>
     </div>
 
+    <!-- النص الإضافي أسفل الأزرار -->
     <p data-text="extra" class="extra-text"></p>
 
-    <!-- مكان التيمبلات الديناميكية -->
-    <div id="apps-container"></div>
+    <!-- ====== TEMPLATE جاهز لإضافة نسخة جديدة ====== -->
+    <div class="app-box">
+        <a href="data/Gbwa.html"> 
+            <img src="assets/Down/mmx8.png" class="big-app-image">
+        </a>
+
+        <p class="app-desc">
+            اضغط على الصورة للانتقال مباشرة إلى صفحة تحميل GBWhatsApp Pro v23.96
+        </p>
+    </div>
+    <!-- ====== END TEMPLATE ====== -->
 </div>
 
 <style>
@@ -85,7 +95,7 @@
     height: 25px;
 }
 
-/* تيمبلت تلقائي */
+/* ====== CSS للبلوك الجديد ====== */
 .app-box {
     background: #111;
     padding: 20px;
@@ -113,94 +123,3 @@
     color: #ffd700;
 }
 </style>
-
-<script>
-(async function(){
-  const container = document.getElementById("apps-container");
-  if (!container) return;
-
-  // قائمة مسارات محتملة لـ Apps.json (بترتيب التجريب)
-  const possiblePaths = [
-    "pages/Apps.json",                            // نسبي (موصى به)
-    "./pages/Apps.json",
-    "/pages/Apps.json",
-    "/DevAli.github.io/pages/Apps.json",          // مسار كامل لمستودعك كما ظهر سابقًا
-    "DevAli.github.io/pages/Apps.json",
-    "/DevAli.pages/Apps.json"                     // احتياطي (نادر)
-  ];
-
-  let apps = null;
-  for (const p of possiblePaths) {
-    try {
-      console.log("Trying Apps.json at:", p);
-      const res = await fetch(p, { cache: "no-store" });
-      if (!res.ok) {
-        console.warn("Not found:", p, res.status);
-        continue;
-      }
-      apps = await res.json();
-      console.log("Loaded Apps.json from:", p);
-      break;
-    } catch (err) {
-      console.warn("Fetch error for", p, err);
-    }
-  }
-
-  if (!apps) {
-    container.innerHTML = '<p style="color:#f66">لم يتم العثور على ملف pages/Apps.json — تأكد من المسار واسم الملف. افتح Console لرؤية التفاصيل.</p>';
-    return;
-  }
-
-  // Normalize apps: accept array or object map
-  let list = [];
-  if (Array.isArray(apps)) list = apps;
-  else if (apps && typeof apps === "object") list = Object.keys(apps).map(k => Object.assign({ name: apps[k].name || k }, apps[k]));
-  else {
-    container.innerHTML = '<p style="color:#f66">تنسيق Apps.json غير صحيح.</p>';
-    console.error("Apps.json format:", apps);
-    return;
-  }
-
-  // Helper لبناء المسارات للصورة و الصفحة بشكل مرن
-  function buildPageHref(page) {
-    if (!page) return "#";
-    // لو الصفحة تبدأ ب"http" أو "/" استخدمها كما هي
-    if (page.startsWith("http") || page.startsWith("/")) return page;
-    // لو تبدو اسم ملف داخل pages folder
-    return `pages/${page}`;
-  }
-  function buildImageSrc(img) {
-    if (!img) return "";
-    if (img.startsWith("http") || img.startsWith("/")) return img;
-    return `assets/Down/${img}`;
-  }
-
-  // توليد HTML
-  const frag = document.createDocumentFragment();
-  list.forEach(app => {
-    if (!app.page || !app.image) return; // تجاهل الناقص
-    const box = document.createElement("div");
-    box.className = "app-box";
-
-    const a = document.createElement("a");
-    a.href = buildPageHref(app.page);
-
-    const img = document.createElement("img");
-    img.src = buildImageSrc(app.image);
-    img.className = "big-app-image";
-    img.alt = app.name || "app";
-
-    a.appendChild(img);
-    box.appendChild(a);
-
-    const p = document.createElement("p");
-    p.className = "app-desc";
-    p.textContent = app.description || "";
-    box.appendChild(p);
-
-    frag.appendChild(box);
-  });
-
-  container.appendChild(frag);
-})();
-</script>
