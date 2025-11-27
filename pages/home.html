@@ -4,27 +4,30 @@
 
     <div class="social-buttons">
         <a class="btn" href="https://t.me/WAMOD17" target="_blank">
-            <img src="https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/telegram.png" class="icon"> 
+            <img src="telegram.png" class="icon"> 
             <span data-text="telegram"></span>
         </a>
 
         <a class="btn" href="https://whatsapp.com/channel/..." target="_blank">
-            <img src="https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/whatsapp.png" class="icon"> 
+            <img src="whatsapp.png" class="icon"> 
             <span data-text="whatsapp"></span>
         </a>
 
         <a class="btn" href="https://youtube.com/@..." target="_blank">
-            <img src="https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/youtube.png" class="icon"> 
+            <img src="youtube.png" class="icon"> 
             <span data-text="youtube"></span>
         </a>
     </div>
 
+    <!-- النص الإضافي أسفل الأزرار -->
     <p data-text="extra" class="extra-text"></p>
 
+    <!-- الحاوية التي ستضاف فيها التطبيقات ديناميكيًا -->
     <div id="apps-container"></div>
 </div>
 
 <style>
+/* الكود CSS كما كان معك مسبقًا */
 .home-container {
     max-width: 800px;
     margin: 40px auto;
@@ -84,6 +87,7 @@
     height: 25px;
 }
 
+/* CSS للبلوك الجديد */
 .app-box {
     background: #111;
     padding: 20px;
@@ -113,22 +117,36 @@
 </style>
 
 <script>
-// تحميل التمبلّات من JSON عبر RAW GitHub
-fetch("https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/pages/Apps.json")
-    .then(res => res.json())
-    .then(apps => {
-        const container = document.getElementById("apps-container");
+// مصفوفة تحتوي على بيانات التطبيقات
+const apps = [
+    {
+        page: 'data/Gbwa.html',
+        image: 'assets/Down/mmx8.png',
+        desc: 'اضغط على الصورة للانتقال مباشرة إلى صفحة تحميل GBWhatsApp Pro v23.96'
+    },
+    {
+        page: 'data/AnotherApp.html',
+        image: 'assets/Down/another.png',
+        desc: 'اضغط هنا لتحميل Another App'
+    },
+    // أضف المزيد هنا فقط بإضافة عناصر جديدة
+];
 
-        apps.forEach(app => {
-            container.innerHTML += `
-                <div class="app-box">
-                    <a href="${app.page}">
-                        <img src="${app.image}" class="big-app-image">
-                    </a>
-                    <p class="app-desc">${app.description}</p>
-                </div>
-            `;
-        });
-    })
-    .catch(err => console.error("Error loading JSON:", err));
+// تحديد الحاوية
+const container = document.getElementById('apps-container');
+
+// إنشاء البلوكات تلقائيًا
+apps.forEach(app => {
+    const box = document.createElement('div');
+    box.className = 'app-box';
+
+    box.innerHTML = `
+        <a href="${app.page}">
+            <img src="${app.image}" class="big-app-image">
+        </a>
+        <p class="app-desc">${app.desc}</p>
+    `;
+
+    container.appendChild(box);
+});
 </script>
