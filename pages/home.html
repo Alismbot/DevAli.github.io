@@ -4,25 +4,23 @@
 
     <div class="social-buttons">
         <a class="btn" href="https://t.me/WAMOD17" target="_blank">
-            <img src="telegram.png" class="icon"> 
+            <img src="https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/telegram.png" class="icon"> 
             <span data-text="telegram"></span>
         </a>
 
         <a class="btn" href="https://whatsapp.com/channel/..." target="_blank">
-            <img src="whatsapp.png" class="icon"> 
+            <img src="https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/whatsapp.png" class="icon"> 
             <span data-text="whatsapp"></span>
         </a>
 
         <a class="btn" href="https://youtube.com/@..." target="_blank">
-            <img src="youtube.png" class="icon"> 
+            <img src="https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/youtube.png" class="icon"> 
             <span data-text="youtube"></span>
         </a>
     </div>
 
-    <!-- النص الإضافي أسفل الأزرار -->
     <p data-text="extra" class="extra-text"></p>
 
-    <!-- ====== سيتم ملؤه ديناميكيا ====== -->
     <div id="apps-container"></div>
 </div>
 
@@ -86,7 +84,6 @@
     height: 25px;
 }
 
-/* ====== CSS لبلوك التطبيق ====== */
 .app-box {
     background: #111;
     padding: 20px;
@@ -116,8 +113,8 @@
 </style>
 
 <script>
-// تحميل التيمبلات من JSON الموجود داخل pages
-fetch("Apps.json")
+// تحميل التمبلّات من JSON عبر RAW GitHub
+fetch("https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/pages/Apps.json")
     .then(res => res.json())
     .then(apps => {
         const container = document.getElementById("apps-container");
