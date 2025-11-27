@@ -22,17 +22,8 @@
     <!-- النص الإضافي أسفل الأزرار -->
     <p data-text="extra" class="extra-text"></p>
 
-    <!-- ====== TEMPLATE جاهز لإضافة نسخة جديدة ====== -->
-    <div class="app-box">
-        <a href="data/Gbwa.html"> 
-            <img src="assets/Down/mmx8.png" class="big-app-image">
-        </a>
-
-        <p class="app-desc">
-            اضغط على الصورة للانتقال مباشرة إلى صفحة تحميل GBWhatsApp Pro v23.96
-        </p>
-    </div>
-    <!-- ====== END TEMPLATE ====== -->
+    <!-- ====== سيتم ملؤه ديناميكيا ====== -->
+    <div id="apps-container"></div>
 </div>
 
 <style>
@@ -95,7 +86,7 @@
     height: 25px;
 }
 
-/* ====== CSS للبلوك الجديد ====== */
+/* ====== CSS لبلوك التطبيق ====== */
 .app-box {
     background: #111;
     padding: 20px;
@@ -123,3 +114,24 @@
     color: #ffd700;
 }
 </style>
+
+<script>
+// تحميل التيمبلات من JSON الموجود داخل pages
+fetch("Apps.json")
+    .then(res => res.json())
+    .then(apps => {
+        const container = document.getElementById("apps-container");
+
+        apps.forEach(app => {
+            container.innerHTML += `
+                <div class="app-box">
+                    <a href="${app.page}">
+                        <img src="${app.image}" class="big-app-image">
+                    </a>
+                    <p class="app-desc">${app.description}</p>
+                </div>
+            `;
+        });
+    })
+    .catch(err => console.error("Error loading JSON:", err));
+</script>
