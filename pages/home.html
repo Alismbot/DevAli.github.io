@@ -1,6 +1,6 @@
 <div class="home-container">
-    <h1 data-text="title"></h1>
-    <p data-text="description"></p>
+    <h1 data-text="title">عنوان الموقع</h1>
+    <p data-text="description">وصف الموقع</p>
 
     <div class="social-buttons">
         <a class="btn" href="https://t.me/WAMOD17" target="_blank">
@@ -19,15 +19,21 @@
         </a>
     </div>
 
-    <!-- النص الإضافي أسفل الأزرار -->
-    <p data-text="extra" class="extra-text"></p>
+    <p data-text="extra" class="extra-text">نص إضافي أسفل الأزرار</p>
 
-    <!-- الحاوية التي ستضاف فيها التطبيقات ديناميكيًا -->
+    <!-- قالب مخفي للتطبيقات -->
+    <div class="app-box template" style="display:none;">
+        <a href="">
+            <img src="" class="big-app-image">
+        </a>
+        <p class="app-desc"></p>
+    </div>
+
+    <!-- حاوية التطبيقات التي ستظهر -->
     <div id="apps-container"></div>
 </div>
 
 <style>
-/* الكود CSS كما كان معك مسبقًا */
 .home-container {
     max-width: 800px;
     margin: 40px auto;
@@ -87,7 +93,6 @@
     height: 25px;
 }
 
-/* CSS للبلوك الجديد */
 .app-box {
     background: #111;
     padding: 20px;
@@ -117,36 +122,32 @@
 </style>
 
 <script>
-// مصفوفة تحتوي على بيانات التطبيقات
-const apps = [
-    {
-        page: 'data/Gbwa.html',
-        image: 'assets/Down/mmx8.png',
-        desc: 'اضغط على الصورة للانتقال مباشرة إلى صفحة تحميل GBWhatsApp Pro v23.96'
-    },
-    {
-        page: 'data/AnotherApp.html',
-        image: 'assets/Down/another.png',
-        desc: 'اضغط هنا لتحميل Another App'
-    },
-    // أضف المزيد هنا فقط بإضافة عناصر جديدة
-];
+document.addEventListener("DOMContentLoaded", () => {
+    // مصفوفة التطبيقات: فقط أضف عناصر هنا لإضافة تطبيق جديد
+    const apps = [
+        { page: 'data/Gbwa.html', image: 'assets/Down/mmx8.png', desc: 'اضغط على الصورة للانتقال مباشرة إلى صفحة تحميل GBWhatsApp Pro v23.96' },
+        { page: 'data/AnotherApp.html', image: 'assets/Down/another.png', desc: 'اضغط هنا لتحميل Another App' }
+    ];
 
-// تحديد الحاوية
-const container = document.getElementById('apps-container');
+    const container = document.getElementById('apps-container');
+    const template = document.querySelector('.app-box.template');
 
-// إنشاء البلوكات تلقائيًا
-apps.forEach(app => {
-    const box = document.createElement('div');
-    box.className = 'app-box';
+    apps.forEach(app => {
+        const clone = template.cloneNode(true);
+        clone.style.display = 'block';
+        clone.classList.remove('template');
+        const img = clone.querySelector('img');
+        img.src = app.image;
 
-    box.innerHTML = `
-        <a href="${app.page}">
-            <img src="${app.image}" class="big-app-image">
-        </a>
-        <p class="app-desc">${app.desc}</p>
-    `;
+        // إذا الصورة غير موجودة يتم استبدالها بنص افتراضي WAGB
+        img.onerror = function() {
+            const textNode = document.createTextNode('WAGB');
+            this.replaceWith(textNode);
+        }
 
-    container.appendChild(box);
+        clone.querySelector('a').href = app.page;
+        clone.querySelector('.app-desc').textContent = app.desc;
+        container.appendChild(clone);
+    });
 });
 </script>
