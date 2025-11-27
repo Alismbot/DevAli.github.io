@@ -1,153 +1,84 @@
+<!-- مثال على التيمبلت الحالي -->
 <div class="home-container">
-    <h1 data-text="title">عنوان الموقع</h1>
-    <p data-text="description">وصف الموقع</p>
+    <h1 data-text="title">عنوان الصفحة</h1>
+    <p data-text="description">وصف الصفحة</p>
 
     <div class="social-buttons">
         <a class="btn" href="https://t.me/WAMOD17" target="_blank">
-            <img src="telegram.png" class="icon"> 
+            <img src="telegram.png" class="icon">
             <span data-text="telegram"></span>
         </a>
-
         <a class="btn" href="https://whatsapp.com/channel/..." target="_blank">
-            <img src="whatsapp.png" class="icon"> 
+            <img src="whatsapp.png" class="icon">
             <span data-text="whatsapp"></span>
         </a>
-
         <a class="btn" href="https://youtube.com/@..." target="_blank">
-            <img src="youtube.png" class="icon"> 
+            <img src="youtube.png" class="icon">
             <span data-text="youtube"></span>
         </a>
     </div>
 
     <p data-text="extra" class="extra-text">نص إضافي أسفل الأزرار</p>
 
-    <!-- قالب مخفي للتطبيقات -->
-    <div class="app-box template" style="display:none;">
-        <a href="">
-            <img src="" class="big-app-image">
-        </a>
-        <p class="app-desc"></p>
+    <!-- الحاوية التي ستضم جميع التطبيقات -->
+    <div id="apps-container">
+        <!-- هنا ستظهر التيمبلات عبر JS -->
     </div>
-
-    <!-- حاوية التطبيقات التي ستظهر -->
-    <div id="apps-container"></div>
 </div>
 
-<style>
-.home-container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    text-align: center;
-    color: #fff;
-    line-height: 1.7;
-    font-size: 18px;
-}
-
-.home-container h1 {
-    font-size: 40px;
-    margin-bottom: 20px;
-    color: #00e676;
-}
-
-.home-container p {
-    font-size: 20px;
-    margin-bottom: 20px;
-}
-
-.social-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 30px;
-}
-
-.extra-text {
-    font-size: 18px;
-    margin-top: 20px;
-    color: #ffd700;
-}
-
-.social-buttons .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background-color: #111;
-    color: #00e676;
-    padding: 15px 25px;
-    border-radius: 12px;
-    font-size: 18px;
-    font-weight: bold;
-    text-decoration: none;
-    transition: all 0.3s;
-}
-
-.social-buttons .btn:hover {
-    background-color: #00c75a;
-    color: #111;
-}
-
-.social-buttons .btn img.icon {
-    width: 25px;
-    height: 25px;
-}
-
-.app-box {
-    background: #111;
-    padding: 20px;
-    margin: 30px auto;
-    border-radius: 15px;
-    max-width: 700px;
-    text-align: center;
-}
-
-.big-app-image {
-    width: 100%;
-    max-width: 600px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: transform 0.3s;
-}
-
-.big-app-image:hover {
-    transform: scale(1.03);
-}
-
-.app-desc {
-    margin-top: 15px;
-    font-size: 18px;
-    color: #ffd700;
-}
-</style>
-
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    // مصفوفة التطبيقات: فقط أضف عناصر هنا لإضافة تطبيق جديد
-    const apps = [
-        { page: 'data/Gbwa.html', image: 'assets/Down/mmx8.png', desc: 'اضغط على الصورة للانتقال مباشرة إلى صفحة تحميل GBWhatsApp Pro v23.96' },
-        { page: 'data/AnotherApp.html', image: 'assets/Down/another.png', desc: 'اضغط هنا لتحميل Another App' }
-    ];
+// قائمة التطبيقات التي تريد إضافتها
+const apps = [
+    { page: 'data/Gbwa.html', image: 'assets/Down/mmx8.png', desc: 'اضغط للانتقال إلى GBWhatsApp Pro v23.96' },
+    { page: 'data/AnotherApp.html', image: 'assets/Down/nonexistent.png', desc: 'اضغط للانتقال إلى Another App' }
+];
 
-    const container = document.getElementById('apps-container');
-    const template = document.querySelector('.app-box.template');
+// اختيار الحاوية
+const container = document.getElementById('apps-container');
 
-    apps.forEach(app => {
-        const clone = template.cloneNode(true);
-        clone.style.display = 'block';
-        clone.classList.remove('template');
-        const img = clone.querySelector('img');
-        img.src = app.image;
+apps.forEach(app => {
+    // إنشاء div للتيمبلت
+    const div = document.createElement('div');
+    div.className = 'app-box';
+    div.style.background = '#111';
+    div.style.padding = '20px';
+    div.style.margin = '30px auto';
+    div.style.borderRadius = '15px';
+    div.style.maxWidth = '700px';
+    div.style.textAlign = 'center';
 
-        // إذا الصورة غير موجودة يتم استبدالها بنص افتراضي WAGB
-        img.onerror = function() {
-            const textNode = document.createTextNode('WAGB');
-            this.replaceWith(textNode);
-        }
+    // إنشاء الرابط
+    const a = document.createElement('a');
+    a.href = app.page;
 
-        clone.querySelector('a').href = app.page;
-        clone.querySelector('.app-desc').textContent = app.desc;
-        container.appendChild(clone);
-    });
+    // إنشاء الصورة
+    const img = document.createElement('img');
+    img.className = 'big-app-image';
+    img.style.width = '100%';
+    img.style.maxWidth = '600px';
+    img.style.borderRadius = '12px';
+    img.style.cursor = 'pointer';
+    img.src = app.image;
+
+    // إذا الصورة غير موجودة، استبدلها بالنص WAGB
+    img.onerror = function() {
+        const textNode = document.createTextNode('WAGB');
+        this.replaceWith(textNode);
+    }
+
+    // إضافة الصورة داخل الرابط
+    a.appendChild(img);
+    div.appendChild(a);
+
+    // إضافة الوصف
+    const p = document.createElement('p');
+    p.textContent = app.desc;
+    p.style.marginTop = '15px';
+    p.style.fontSize = '18px';
+    p.style.color = '#ffd700';
+    div.appendChild(p);
+
+    // إضافة التيمبلت إلى الحاوية
+    container.appendChild(div);
 });
 </script>
