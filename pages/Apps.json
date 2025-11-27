@@ -1,7 +1,17 @@
 [
-  {
-    "page": "assets/Down/Gbwa.html",
-    "image": "data/mmx8.png",
-    "description": "اضغط على الصورة للانتقال إلى صفحة تحميل GBWhatsApp Pro v23.96"
-  }
+    {
+        "page": "../data/Gbwa.html",
+        "image": "../assets/Down/mmx8.png",
+        "description": "اضغط على الصورة للانتقال مباشرة إلى صفحة تحميل GBWhatsApp Pro v23.96"
+    },
+    {
+        "page": "../data/YoWa.html",
+        "image": "../assets/Down/yowa.png",
+        "description": "اضغط للذهاب إلى صفحة تحميل YoWhatsApp"
+    },
+    {
+        "page": "../data/FM.html",
+        "image": "../assets/Down/fm.png",
+        "description": "اضغط للذهاب إلى صفحة FMWhatsApp"
+    }
 ]
