@@ -2,9 +2,10 @@
     <h1 id="series-title"></h1>
 
     <div class="video-feed" id="video-feed">
-        <!-- videos auto insert -->
+        <!-- الفيديوهات تولّد تلقائياً -->
     </div>
 
+    <!-- أزرار جانبية -->
     <div class="side-buttons">
         <button id="like-btn">❤️</button>
         <button id="episodes-btn">📺</button>
@@ -18,45 +19,42 @@
     width: 100%;
     height: 100vh;
     background: #000;
-    overflow: hidden;
+    overflow: hidden; /* منع scroll اليدوي */
     color: #fff;
+    font-family: Arial, sans-serif;
 }
 
-/* العنوان */
 #series-title {
     position: absolute;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 22px;
+    font-size: 24px;
     z-index: 10;
 }
 
-/* السحب العامودي */
 .video-feed {
     width: 100%;
     height: 100vh;
-    overflow-y: scroll;
-    scroll-snap-type: y mandatory;
-    scroll-behavior: smooth;     /* أهم خط */
-}
-
-/* الفيديو عنصر واحد */
-.video-feed > div {
-    width: 100%;
-    height: 100vh;
-    scroll-snap-align: start;
+    overflow: hidden;
     position: relative;
 }
 
-/* الفيديو */
-.video-feed video {
+.video-page {
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: transform 0.35s ease-out;
+}
+
+.video-page video {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-/* أزرار جانبية */
 .side-buttons {
     position: absolute;
     right: 10px;
@@ -65,17 +63,33 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    z-index: 20;
+    z-index: 10;
+}
+
+.side-buttons button {
+    background: rgba(17,17,17,0.7);
+    color: #00e676;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.side-buttons button:hover {
+    background: #00e676;
+    color: #111;
 }
 </style>
 
 <script>
-// قراءة اسم المسلسل
+// قراءة اسم المسلسل ?series=loveblack
 const params = new URLSearchParams(window.location.search);
-const seriesName = params.get("series") || "loveblack";
-document.getElementById("series-title").innerText = seriesName;
+const seriesName = params.get('series') || 'loveblack';
+document.getElementById('series-title').innerText = seriesName;
 
-// روابط RAW
+// قائمة الحلقات (RAW links)
 const episodes = [
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4`,
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4`,
@@ -84,56 +98,59 @@ const episodes = [
 
 const feed = document.getElementById("video-feed");
 
-// إنشاء عناصر الفيديو داخل DIV لكل حلقة
-episodes.forEach(url => {
-    const wrap = document.createElement("div");
+// إنشاء الصفحات
+episodes.forEach((url, i) => {
+    const page = document.createElement("div");
+    page.className = "video-page";
+    page.style.transform = `translateY(${i * 100}vh)`;
+
     const vid = document.createElement("video");
     vid.src = url;
-    vid.controls = false;
     vid.autoplay = false;
+    vid.controls = false;
     vid.loop = false;
 
-    wrap.appendChild(vid);
-    feed.appendChild(wrap);
+    page.appendChild(vid);
+    feed.appendChild(page);
 });
 
-// نظام scroll snap الاحترافي
-let currentIndex = 0;
-let allowSnap = true;
+// ---------------- TikTok Paging Engine ----------------
+let current = 0;
+let startY = 0;
+let endY = 0;
+const total = episodes.length;
 
-feed.addEventListener("scroll", () => {
-    if (!allowSnap) return;
-
-    clearTimeout(feed.snapTimeout);
-
-    feed.snapTimeout = setTimeout(() => {
-        const vh = window.innerHeight;
-        const newIndex = Math.round(feed.scrollTop / vh);
-
-        currentIndex = newIndex;
-        allowSnap = false;
-
-        feed.scrollTo({
-            top: currentIndex * vh,
-            behavior: "smooth"
-        });
-
-        document.querySelectorAll(".video-feed video").forEach((v, i) => {
-            if (i === currentIndex) v.play();
-            else {
-                v.pause();
-                v.currentTime = 0;
-            }
-        });
-
-        setTimeout(() => allowSnap = true, 350);
-
-    }, 70);
+feed.addEventListener("touchstart", e => {
+    startY = e.touches[0].clientY;
 });
 
-// تشغيل أول فيديو
+feed.addEventListener("touchmove", e => {
+    endY = e.touches[0].clientY;
+});
+
+feed.addEventListener("touchend", () => {
+    const diff = startY - endY;
+    if (Math.abs(diff) < 40) return; // سحب ضعيف → تجاهل
+
+    if (diff > 40 && current < total - 1) current++;  // سحب للأعلى → الفيديو التالي
+    if (diff < -40 && current > 0) current--;        // سحب للأسفل → الفيديو السابق
+
+    updatePages();
+});
+
+function updatePages() {
+    document.querySelectorAll(".video-page").forEach((p, i) => {
+        p.style.transform = `translateY(${(i - current) * 100}vh)`;
+    });
+
+    document.querySelectorAll(".video-page video").forEach((v, i) => {
+        if (i === current) v.play();
+        else { v.pause(); v.currentTime = 0; }
+    });
+}
+
+// تشغيل أول فيديو تلقائياً
 window.onload = () => {
-    const vid = document.querySelector(".video-feed video");
-    if (vid) vid.play();
+    updatePages();
 };
 </script>
