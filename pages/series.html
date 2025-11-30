@@ -1,12 +1,49 @@
-<div style="padding:20px;">
-    <h2>المسلسلات</h2>
-
-    <div style="margin-top:20px;">
-        <a href="?page=viewSeries&id=loveblack" style="text-decoration:none; color:white;">
-            <div style="background:#111; padding:10px; border-radius:10px;">
-                <img src="series/loveblack.jpg" style="width:100%; border-radius:10px;">
-                <h3 style="margin-top:10px;">Love Black</h3>
-            </div>
-        </a>
-    </div>
+<div id="series-container" style="height:100vh; overflow-y:scroll; scroll-snap-type:y mandatory; margin:0; padding:0;">
+    <!-- الحلقات سيتم إضافتها تلقائيًا -->
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const seriesName = params.get("series"); // ?page=series&series=loveblack
+
+    const container = document.getElementById("series-container");
+
+    if (!seriesName) {
+        container.innerHTML = "<h2>⚠️ لم يتم تحديد السلسلة</h2>";
+        return;
+    }
+
+    const seriesPath = `assets/series/${seriesName}/`;
+
+    // مثال ثابت للحلقات، يمكن تعديله لاحقًا حسب عدد الحلقات
+    const episodes = ["ep1.mp4", "ep2.mp4", "ep3.mp4"];
+
+    episodes.forEach(epFile => {
+        const div = document.createElement("div");
+        div.className = "episode";
+        div.style.height = "100vh";
+        div.style.scrollSnapAlign = "start";
+
+        const video = document.createElement("video");
+        video.src = seriesPath + epFile;
+        video.controls = true;
+        video.style.width = "100%";
+        video.style.height = "100%";
+        video.style.objectFit = "cover";
+
+        div.appendChild(video);
+        container.appendChild(div);
+    });
+
+    // تشغيل/إيقاف الفيديو عند ظهوره/اختفائه من الشاشة
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.play();
+            else entry.target.pause();
+        });
+    }, { threshold: 0.7 });
+
+    document.querySelectorAll("video").forEach(video => observer.observe(video));
+});
+</script>
