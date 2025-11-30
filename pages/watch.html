@@ -1,25 +1,24 @@
-<div class="watch-container">
-    <h1 id="series-title"></h1>
-    <div class="video-feed" id="video-feed">
-        <!-- الفيديوهات ستظهر هنا تلقائياً -->
-    </div>
-    <!-- أزرار جانبية -->
-    <div class="side-buttons">
-        <button id="like-btn">❤️</button>
-        <button id="episodes-btn">📺</button>
-        <button id="share-btn">🔗</button>
-    </div>
-</div>
-
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مشاهدة المسلسل</title>
 <style>
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+}
+
 .watch-container {
     position: relative;
     width: 100%;
     height: 100vh;
-    background: #000;
     overflow: hidden;
-    color: #fff;
-    font-family: Arial, sans-serif;
 }
 
 #series-title {
@@ -43,6 +42,7 @@
     height: 100vh;
     object-fit: cover;
     scroll-snap-align: start;
+    background: #000;
 }
 
 .side-buttons {
@@ -72,6 +72,22 @@
     color: #111;
 }
 </style>
+</head>
+<body>
+
+<div class="watch-container">
+    <h1 id="series-title"></h1>
+    <div class="video-feed" id="video-feed">
+        <!-- الفيديوهات ستظهر هنا تلقائياً -->
+    </div>
+
+    <!-- أزرار جانبية -->
+    <div class="side-buttons">
+        <button id="like-btn">❤️</button>
+        <button id="episodes-btn">📺</button>
+        <button id="share-btn">🔗</button>
+    </div>
+</div>
 
 <script>
 // الحصول على اسم المسلسل من الرابط ?series=loveblack
@@ -79,17 +95,33 @@ const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
-// قائمة الحلقات (تجريبية)
-const episodes = ['ep1.mp4','ep2.mp4','ep3.mp4']; // هنا يمكن إضافة المزيد
+// قائمة الحلقات
+const episodes = ['ep1.mp4','ep2.mp4','ep3.mp4']; // يمكنك تعديلها أو إضافة حلقات جديدة
+
+// رابط Raw على GitHub
+const baseRawURL = 'https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/';
 
 const feed = document.getElementById('video-feed');
 
 episodes.forEach(ep => {
     const video = document.createElement('video');
-    video.src = `../assets/series/${seriesName}/${ep}`;
+    video.src = `${baseRawURL}${seriesName}/${ep}`;
     video.controls = true;
     video.autoplay = false;
     video.loop = false;
+    video.preload = "metadata";
     feed.appendChild(video);
 });
+
+// أزرار جانبية (تجريبية)
+document.getElementById('like-btn').addEventListener('click', () => alert('تم الإعجاب!'));
+document.getElementById('episodes-btn').addEventListener('click', () => alert('قائمة الحلقات'));
+document.getElementById('share-btn').addEventListener('click', () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+    alert('تم نسخ رابط المسلسل!');
+});
 </script>
+
+</body>
+</html>
