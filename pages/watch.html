@@ -40,12 +40,41 @@
     scroll-snap-type: y mandatory;
 }
 
-.video-feed video {
+.video-wrapper {
+    position: relative;
     width: 100%;
     height: 100vh;
-    object-fit: cover;
     scroll-snap-align: start;
+}
+
+.video-wrapper video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.5);
+    color: #00e676;
+    border: none;
+    border-radius: 50%;
+    font-size: 32px;
+    width: 60px;
+    height: 60px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    transition: all 0.2s;
+}
+
+.play-btn:hover {
+    background: rgba(0,230,118,0.8);
 }
 
 .side-buttons {
@@ -91,30 +120,43 @@ const episodes = [
 
 const feed = document.getElementById("video-feed");
 
-// إنشاء الفيديوهات
+// إنشاء الفيديوهات مع زر التشغيل في الوسط
 episodes.forEach(url => {
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("video-wrapper");
+
     const vid = document.createElement("video");
     vid.src = url;
-    vid.controls = false;
     vid.autoplay = false;
     vid.loop = false;
-    feed.appendChild(vid);
+    vid.controls = false;
+    wrapper.appendChild(vid);
 
-    // الضغط على الفيديو لتشغيله بعد الإيقاف
-    vid.addEventListener('click', () => {
-        document.querySelectorAll(".video-feed video").forEach((v) => {
+    const btn = document.createElement("button");
+    btn.classList.add("play-btn");
+    btn.innerText = "▶";
+    wrapper.appendChild(btn);
+
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".video-feed video").forEach(v => {
             if (v !== vid) {
                 v.pause();
                 v.currentTime = 0;
             }
         });
-
-        if (vid.paused) vid.play();
+        if (vid.paused) {
+            vid.play();
+            btn.innerText = "⏸";
+        } else {
+            vid.pause();
+            btn.innerText = "▶";
+        }
     });
+
+    feed.appendChild(wrapper);
 });
 
 // ------------- نظام Scroll Snap (TikTok style) ----------------
-
 let isSnapping = false;
 
 feed.addEventListener("scroll", () => {
@@ -126,7 +168,6 @@ feed.addEventListener("scroll", () => {
         const scrollTop = feed.scrollTop;
         const vh = window.innerHeight;
 
-        // حساب اقرب فيديو
         const index = Math.round(scrollTop / vh);
 
         isSnapping = true;
@@ -138,24 +179,30 @@ feed.addEventListener("scroll", () => {
 
         // تشغيل الفيديو الصحيح فقط
         document.querySelectorAll(".video-feed video").forEach((v, i) => {
+            const btn = v.parentElement.querySelector(".play-btn");
             if (i === index) {
                 v.play();
+                btn.innerText = "⏸";
             } else {
                 v.pause();
                 v.currentTime = 0;
+                btn.innerText = "▶";
             }
         });
 
         setTimeout(() => {
             isSnapping = false;
         }, 350);
-
     }, 80);
 });
 
 // تشغيل أول فيديو تلقائياً بعد التحميل
 window.onload = () => {
     const firstVideo = document.querySelector(".video-feed video");
-    if (firstVideo) firstVideo.play();
+    const firstBtn = firstVideo.parentElement.querySelector(".play-btn");
+    if (firstVideo) {
+        firstVideo.play();
+        firstBtn.innerText = "⏸";
+    }
 };
 </script>
