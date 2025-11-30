@@ -1,9 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watch Series</title>
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+.watch-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: #000;
+    color: #fff;
+}
+
+#series-title {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 22px;
+    z-index: 20;
+    background: rgba(0,0,0,0.6);
+    padding: 5px 15px;
+    border-radius: 10px;
+}
+
+.video-feed {
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+}
+
+.video-feed video {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    scroll-snap-align: start;
+    background: #000;
+}
+
+.side-buttons {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 30;
+}
+
+.side-buttons button {
+    background: rgba(17,17,17,0.7);
+    color: #00e676;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.side-buttons button:hover {
+    background: #00e676;
+    color: #111;
+}
+</style>
+</head>
+<body>
+
+<div class="watch-container">
+    <h1 id="series-title"></h1>
+
+    <div class="video-feed" id="video-feed">
+        <!-- يتم إدخال الفيديوهات هنا تلقائياً -->
+    </div>
+
+    <div class="side-buttons">
+        <button id="like-btn">❤️</button>
+        <button id="episodes-btn">📺</button>
+        <button id="share-btn">🔗</button>
+    </div>
+</div>
+
 <script>
+/* --------------------------
+   1) جلب اسم المسلسل من الرابط
+--------------------------- */
 const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
-// استعمال GitHub RAW
+/* --------------------------
+   2) قائمة الحلقات
+--------------------------- */
 const episodes = [
     'ep1.mp4',
     'ep2.mp4',
@@ -12,63 +112,72 @@ const episodes = [
 
 const feed = document.getElementById('video-feed');
 
-// إنشاء الفيديوهات
+/* --------------------------
+   3) إدخال الفيديوهات داخل الصفحة
+--------------------------- */
 episodes.forEach(ep => {
     const video = document.createElement('video');
-    video.src = `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/${ep}`;
+
+    video.src =
+        `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/${ep}?raw=1`;
+
+    video.playsInline = true;
     video.controls = false;
     video.autoplay = false;
     video.loop = false;
-    video.playsInline = true;
     video.preload = "metadata";
+
     feed.appendChild(video);
 });
 
-// -----------------------------------------------------------
-//   1) منع تجاوز الفيديوهات أثناء السحب
-// -----------------------------------------------------------
-let isScrolling = false;
-feed.addEventListener('scroll', () => {
-    if (isScrolling) return;
+/* --------------------------
+   4) Scroll Snap اليدوي
+   يمنع تجاوز 3 فيديوهات مرة واحدة
+--------------------------- */
+let lockScroll = false;
 
-    isScrolling = true;
+feed.addEventListener('scroll', () => {
+    if (lockScroll) return;
+
+    lockScroll = true;
 
     setTimeout(() => {
-        const scrollPos = feed.scrollTop;
-        const videoHeight = window.innerHeight;
-        const index = Math.round(scrollPos / videoHeight);
+        const pos = feed.scrollTop;
+        const vh = window.innerHeight;
+        const index = Math.round(pos / vh);
 
         feed.scrollTo({
-            top: index * videoHeight,
+            top: index * vh,
             behavior: "smooth"
         });
 
-        isScrolling = false;
+        lockScroll = false;
     }, 120);
 });
 
-// -----------------------------------------------------------
-//   2) تشغيل فيديو واحد فقط + إيقاف الآخرين
-// -----------------------------------------------------------
+/* --------------------------
+   5) تشغيل فيديو واحد فقط
+--------------------------- */
 const observer = new IntersectionObserver(
     entries => {
         entries.forEach(entry => {
             const video = entry.target;
 
             if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
-                // تشغيل الفيديو المتواجد بأكبر نسبة داخل الشاشة
                 video.play().catch(()=>{});
             } else {
-                // إيقاف أي فيديو آخر
                 video.pause();
-                video.currentTime = 0; // يبدأ من الأول عند العودة
             }
         });
     },
-    {
-        threshold: [0.7]  // يجب أن يكون 70% داخل الشاشة
-    }
+    { threshold: [0.7] }
 );
 
-document.querySelectorAll('video').forEach(v => observer.observe(v));
+// تفعيل المراقبة بعد إدخال الفيديوهات
+setTimeout(() => {
+    document.querySelectorAll("video").forEach(v => observer.observe(v));
+}, 300);
 </script>
+
+</body>
+</html>
