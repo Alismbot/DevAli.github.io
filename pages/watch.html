@@ -1,11 +1,14 @@
 <div class="watch-container">
     <h1 id="series-title"></h1>
 
-    <div class="video-feed" id="video-feed"></div>
+    <div class="video-feed" id="video-feed">
+        <!-- الفيديوهات تولّد تلقائياً -->
+    </div>
 
-    <!-- زر التشغيل/الإيقاف في وسط الفيديو -->
+    <!-- زر تشغيل/إيقاف في منتصف الفيديو -->
     <button id="play-pause-btn">▶️</button>
 
+    <!-- أزرار جانبية -->
     <div class="side-buttons">
         <button id="like-btn">❤️</button>
         <button id="episodes-btn">📺</button>
@@ -14,19 +17,13 @@
 </div>
 
 <style>
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overscroll-behavior: contain; /* منع الريفريش */
-}
-
 .watch-container {
     position: relative;
     width: 100%;
     height: 100vh;
     background: #000;
     overflow: hidden;
+    color: #fff;
     font-family: Arial, sans-serif;
 }
 
@@ -37,7 +34,6 @@ html, body {
     transform: translateX(-50%);
     font-size: 24px;
     z-index: 10;
-    color: #fff;
 }
 
 .video-feed {
@@ -59,13 +55,14 @@ html, body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 60px;
-    color: #00e676;
-    background: transparent;
+    font-size: 48px;
+    color: #fff;
+    background: none;
     border: none;
     cursor: pointer;
-    z-index: 15;
-    display: none;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.3s;
 }
 
 .side-buttons {
@@ -87,6 +84,7 @@ html, body {
     border-radius: 10px;
     font-size: 18px;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
 .side-buttons button:hover {
@@ -96,12 +94,12 @@ html, body {
 </style>
 
 <script>
-// اسم المسلسل
+// قراءة اسم المسلسل ?series=loveblack
 const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
-// روابط RAW للحلقات
+// قائمة الحلقات (RAW links)
 const episodes = [
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4`,
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4`,
@@ -109,10 +107,6 @@ const episodes = [
 ];
 
 const feed = document.getElementById("video-feed");
-const playBtn = document.getElementById("play-pause-btn");
-
-let currentIndex = 0;
-let isSnapping = false;
 
 // إنشاء الفيديوهات
 episodes.forEach(url => {
@@ -125,57 +119,76 @@ episodes.forEach(url => {
 });
 
 const videos = document.querySelectorAll(".video-feed video");
+let currentIndex = 0;
 
-// تشغيل أول فيديو
-videos[currentIndex].play();
+// تشغيل الفيديو الحالي فقط
+function playCurrent(index) {
+    videos.forEach((v, i) => {
+        if(i === index){
+            v.play();
+        } else {
+            v.pause();
+            v.currentTime = 0;
+        }
+    });
+}
+playCurrent(currentIndex);
 
-// زر وسط الفيديو لإيقاف/تشغيل
-feed.addEventListener("click", () => {
-    playBtn.style.display = playBtn.style.display === "none" ? "block" : "none";
+// منع السحب للاعلى/الاسفل من تفعيل الريفريش
+let touchStartY = 0;
+feed.addEventListener('touchstart', e => {
+    touchStartY = e.touches[0].clientY;
+}, {passive: false});
+feed.addEventListener('touchmove', e => {
+    const touchEndY = e.touches[0].clientY;
+    if(Math.abs(touchEndY - touchStartY) > 0){
+        e.preventDefault(); // منع الريفريش
+    }
+}, {passive: false});
+
+// التعامل مع Scroll snap
+let isScrolling = false;
+feed.addEventListener("scroll", () => {
+    if(isScrolling) return;
+    isScrolling = true;
+    clearTimeout(feed.scrollTimeout);
+    feed.scrollTimeout = setTimeout(() => {
+        const vh = window.innerHeight;
+        const newIndex = Math.round(feed.scrollTop / vh);
+        if(newIndex !== currentIndex){
+            currentIndex = newIndex;
+            playCurrent(currentIndex);
+        }
+        feed.scrollTo({top: currentIndex * vh, behavior: "smooth"});
+        isScrolling = false;
+    }, 100);
 });
+
+// زر التشغيل/الإيقاف
+const playBtn = document.getElementById("play-pause-btn");
+
+function showPlayBtn() {
+    playBtn.style.opacity = 1;
+    clearTimeout(playBtn.hideTimeout);
+    playBtn.hideTimeout = setTimeout(() => {
+        playBtn.style.opacity = 0;
+    }, 2000);
+}
 
 playBtn.addEventListener("click", () => {
-    const v = videos[currentIndex];
-    if(v.paused) v.play();
-    else v.pause();
+    const vid = videos[currentIndex];
+    if(vid.paused){
+        vid.play();
+    } else {
+        vid.pause();
+    }
 });
 
-// Scroll Snap تيك توك
-feed.addEventListener("scroll", () => {
-    if(isSnapping) return;
+// اظهار الزر عند الضغط على الفيديو
+feed.addEventListener("click", showPlayBtn);
 
-    clearTimeout(feed.snapTimeout);
-    feed.snapTimeout = setTimeout(() => {
-        const vh = window.innerHeight;
-        const index = Math.round(feed.scrollTop / vh);
-
-        if(index === currentIndex) return;
-
-        isSnapping = true;
-        feed.scrollTo({ top: index * vh, behavior: "smooth" });
-
-        videos.forEach((v, i) => {
-            if(i === index) v.play();
-            else {
-                v.pause();
-                v.currentTime = 0;
-            }
-        });
-
-        currentIndex = index;
-
-        setTimeout(() => { isSnapping = false; }, 350);
-    }, 50);
-});
-
-// منع الريفريش عند السحب للأسفل
-let touchStartY = 0;
-feed.addEventListener('touchstart', (e) => {
-    touchStartY = e.touches[0].clientY;
-}, {passive:false});
-
-feed.addEventListener('touchmove', (e) => {
-    const touchY = e.touches[0].clientY;
-    if(touchY > touchStartY && feed.scrollTop === 0) e.preventDefault();
-}, {passive:false});
+// تشغيل أول فيديو بعد التحميل
+window.onload = () => {
+    playCurrent(currentIndex);
+};
 </script>
