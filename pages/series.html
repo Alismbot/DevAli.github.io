@@ -16,9 +16,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const seriesPath = `assets/series/${seriesName}/`;
 
-    // مثال ثابت للحلقات، يمكن تعديله لاحقًا حسب عدد الحلقات
-    const episodes = ["ep1.mp4", "ep2.mp4", "ep3.mp4"];
+    // ✅ تحديد الحلقات هنا مباشرة
+    const seriesEpisodes = {
+        "loveblack": ["ep1.mp4", "ep2.mp4", "ep3.mp4"],
+        // يمكن إضافة مسلسلات أخرى بنفس الشكل
+        // "otherSeries": ["ep1.mp4", "ep2.mp4"]
+    };
 
+    const episodes = seriesEpisodes[seriesName];
+    if (!episodes || episodes.length === 0) {
+        container.innerHTML = "<h2>⚠️ لا توجد حلقات لهذا المسلسل</h2>";
+        return;
+    }
+
+    // إنشاء الفيديوهات لكل حلقة
     episodes.forEach(epFile => {
         const div = document.createElement("div");
         div.className = "episode";
@@ -36,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
         container.appendChild(div);
     });
 
-    // تشغيل/إيقاف الفيديو عند ظهوره/اختفائه من الشاشة
+    // تشغيل/إيقاف الفيديو عند ظهوره/اختفائه
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) entry.target.play();
