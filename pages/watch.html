@@ -1,11 +1,9 @@
 <div class="watch-container">
     <h1 id="series-title"></h1>
-    <div class="video-feed" id="video-feed">
-        <!-- الفيديوهات تولد تلقائياً -->
-    </div>
+    <div class="video-feed" id="video-feed"></div>
 
-    <!-- زر التشغيل/الإيقاف في المنتصف -->
-    <button id="play-pause-btn">▶</button>
+    <!-- زر التشغيل/الإيقاف -->
+    <button id="play-pause-btn">⏸</button>
 
     <!-- أزرار جانبية -->
     <div class="side-buttons">
@@ -22,7 +20,6 @@
     height: 100vh;
     background: #000;
     overflow: hidden;
-    color: #fff;
     font-family: Arial, sans-serif;
 }
 
@@ -33,12 +30,14 @@
     transform: translateX(-50%);
     font-size: 24px;
     z-index: 10;
+    color: #fff;
 }
 
 .video-feed {
     width: 100%;
     height: 100%;
-    overflow: hidden; /* منع التمرير التقليدي */
+    overflow: hidden;
+    position: relative;
 }
 
 .video-feed video {
@@ -46,6 +45,9 @@
     height: 100vh;
     object-fit: cover;
     display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 #play-pause-btn {
@@ -61,7 +63,7 @@
     width: 80px;
     height: 80px;
     cursor: pointer;
-    z-index: 15;
+    z-index: 20;
     display: none;
 }
 
@@ -73,7 +75,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    z-index: 10;
+    z-index: 20;
 }
 
 .side-buttons button {
@@ -94,12 +96,11 @@
 </style>
 
 <script>
-// --- إعدادات المسلسل ---
+// --- إعداد المسلسل ---
 const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
-// روابط RAW للفيديوهات
 const episodes = [
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4`,
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4`,
@@ -108,86 +109,75 @@ const episodes = [
 
 const feed = document.getElementById("video-feed");
 const playBtn = document.getElementById("play-pause-btn");
-
-// --- إنشاء الفيديوهات ---
 let currentIndex = 0;
+let isPlaying = true;
+
+// إنشاء الفيديوهات
 episodes.forEach((url, i) => {
     const vid = document.createElement("video");
     vid.src = url;
-    vid.controls = false;
     vid.autoplay = false;
     vid.loop = false;
-    if(i===0) vid.style.display = "block"; // عرض الفيديو الأول
     feed.appendChild(vid);
 });
 
 const videos = feed.querySelectorAll("video");
-let isPlaying = true;
 
-// --- دالة تشغيل الفيديو الحالي ---
-function playCurrentVideo() {
-    videos.forEach((v, i) => {
-        if(i===currentIndex) {
+// --- عرض الفيديو الحالي ---
+function showVideo(index) {
+    videos.forEach((v,i)=>{
+        if(i===index){
             v.style.display = "block";
             v.play();
         } else {
             v.pause();
-            v.currentTime = 0;
-            v.style.display = "none";
+            v.currentTime=0;
+            v.style.display="none";
         }
     });
+    isPlaying = true;
+    playBtn.textContent="⏸";
 }
+showVideo(currentIndex);
 
 // --- زر التشغيل/الإيقاف ---
-playBtn.addEventListener("click", () => {
+playBtn.addEventListener("click",()=>{
     const curr = videos[currentIndex];
-    if(curr.paused) {
+    if(curr.paused){
         curr.play();
         isPlaying = true;
-        playBtn.textContent = "⏸";
+        playBtn.textContent="⏸";
     } else {
         curr.pause();
         isPlaying = false;
-        playBtn.textContent = "▶";
+        playBtn.textContent="▶";
     }
 });
 
-// --- النقر على الفيديو لإظهار/إخفاء زر التشغيل ---
-videos.forEach(v => {
-    v.addEventListener("click", () => {
-        playBtn.style.display = "block";
-        setTimeout(() => {
-            playBtn.style.display = "none";
-        }, 2000);
+// --- إظهار زر التشغيل عند النقر على الفيديو ---
+videos.forEach(v=>{
+    v.addEventListener("click",()=>{
+        playBtn.style.display="block";
+        setTimeout(()=>{ playBtn.style.display="none"; },2000);
     });
 });
 
-// --- محاكاة Scroll (Swipe) --- 
-let startY = 0;
-let endY = 0;
+// --- Swipe للتنقل بين الفيديوهات ---
+let startY=0,endY=0;
+const threshold=50;
 
-feed.addEventListener("touchstart", (e) => {
-    startY = e.touches[0].clientY;
-});
-
-feed.addEventListener("touchend", (e) => {
-    endY = e.changedTouches[0].clientY;
-    const diff = startY - endY;
-    const threshold = 50; // الحد الأدنى للسحب
-
-    if(diff > threshold && currentIndex < videos.length-1) {
-        // سحب للأعلى -> الحلقة التالية
+feed.addEventListener("touchstart",(e)=>{ startY=e.touches[0].clientY; });
+feed.addEventListener("touchend",(e)=>{
+    endY=e.changedTouches[0].clientY;
+    const diff=startY-endY;
+    if(diff>threshold && currentIndex<videos.length-1){
+        // الأعلى
         currentIndex++;
-        playCurrentVideo();
-    } else if(diff < -threshold && currentIndex > 0) {
-        // سحب للأسفل -> الحلقة السابقة
+        showVideo(currentIndex);
+    } else if(diff<-threshold && currentIndex>0){
+        // الأسفل
         currentIndex--;
-        playCurrentVideo();
+        showVideo(currentIndex);
     }
 });
-
-// --- تشغيل الفيديو الأول تلقائياً ---
-window.onload = () => {
-    playCurrentVideo();
-};
 </script>
