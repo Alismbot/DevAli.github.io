@@ -1,9 +1,12 @@
 <div class="watch-container">
     <h1 id="series-title"></h1>
-    <div class="video-feed" id="video-feed"></div>
 
-    <!-- زر التشغيل/الإيقاف -->
-    <button id="play-pause-btn">⏸</button>
+    <div class="video-feed" id="video-feed">
+        <!-- الفيديوهات تولّد تلقائياً -->
+    </div>
+
+    <!-- زر التشغيل/الإيقاف في وسط الفيديو -->
+    <button id="play-pause-btn">▶️</button>
 
     <!-- أزرار جانبية -->
     <div class="side-buttons">
@@ -14,12 +17,20 @@
 </div>
 
 <style>
+body, html {
+    overscroll-behavior: none; /* يمنع الريفريش */
+    touch-action: pan-y;
+    margin: 0;
+    padding: 0;
+}
+
 .watch-container {
     position: relative;
     width: 100%;
     height: 100vh;
     background: #000;
     overflow: hidden;
+    color: #fff;
     font-family: Arial, sans-serif;
 }
 
@@ -30,24 +41,20 @@
     transform: translateX(-50%);
     font-size: 24px;
     z-index: 10;
-    color: #fff;
 }
 
 .video-feed {
     width: 100%;
     height: 100%;
-    overflow: hidden;
-    position: relative;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
 }
 
 .video-feed video {
     width: 100%;
     height: 100vh;
     object-fit: cover;
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
+    scroll-snap-align: start;
 }
 
 #play-pause-btn {
@@ -56,15 +63,12 @@
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 50px;
-    background: rgba(17,17,17,0.5);
     color: #00e676;
+    background: transparent;
     border: none;
-    border-radius: 50%;
-    width: 80px;
-    height: 80px;
     cursor: pointer;
-    z-index: 20;
-    display: none;
+    z-index: 15;
+    display: none; /* يظهر عند النقر على الشاشة */
 }
 
 .side-buttons {
@@ -75,7 +79,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    z-index: 20;
+    z-index: 10;
 }
 
 .side-buttons button {
@@ -96,11 +100,12 @@
 </style>
 
 <script>
-// --- إعداد المسلسل ---
+// الحصول على اسم المسلسل من الرابط ?series=loveblack
 const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
+// قائمة الحلقات (RAW links)
 const episodes = [
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4`,
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4`,
@@ -108,76 +113,86 @@ const episodes = [
 ];
 
 const feed = document.getElementById("video-feed");
-const playBtn = document.getElementById("play-pause-btn");
-let currentIndex = 0;
-let isPlaying = true;
 
 // إنشاء الفيديوهات
-episodes.forEach((url, i) => {
+episodes.forEach(url => {
     const vid = document.createElement("video");
     vid.src = url;
+    vid.controls = false;
     vid.autoplay = false;
     vid.loop = false;
     feed.appendChild(vid);
 });
 
-const videos = feed.querySelectorAll("video");
+// زر التشغيل/الإيقاف
+const playBtn = document.getElementById("play-pause-btn");
+let currentVideoIndex = 0;
+let isSnapping = false;
 
-// --- عرض الفيديو الحالي ---
-function showVideo(index) {
-    videos.forEach((v,i)=>{
-        if(i===index){
-            v.style.display = "block";
-            v.play();
-        } else {
-            v.pause();
-            v.currentTime=0;
-            v.style.display="none";
-        }
-    });
-    isPlaying = true;
-    playBtn.textContent="⏸";
-}
-showVideo(currentIndex);
+const videos = document.querySelectorAll(".video-feed video");
 
-// --- زر التشغيل/الإيقاف ---
-playBtn.addEventListener("click",()=>{
-    const curr = videos[currentIndex];
-    if(curr.paused){
-        curr.play();
-        isPlaying = true;
-        playBtn.textContent="⏸";
+// تشغيل أول فيديو
+videos[currentVideoIndex].play();
+
+// إظهار وإخفاء زر التشغيل عند النقر على الشاشة
+feed.addEventListener("click", () => {
+    if (playBtn.style.display === "none") {
+        playBtn.style.display = "block";
     } else {
-        curr.pause();
-        isPlaying = false;
-        playBtn.textContent="▶";
+        playBtn.style.display = "none";
     }
 });
 
-// --- إظهار زر التشغيل عند النقر على الفيديو ---
-videos.forEach(v=>{
-    v.addEventListener("click",()=>{
-        playBtn.style.display="block";
-        setTimeout(()=>{ playBtn.style.display="none"; },2000);
-    });
+// زر التشغيل/الإيقاف في وسط الفيديو
+playBtn.addEventListener("click", () => {
+    const currentVideo = videos[currentVideoIndex];
+    if (currentVideo.paused) {
+        currentVideo.play();
+    } else {
+        currentVideo.pause();
+    }
 });
 
-// --- Swipe للتنقل بين الفيديوهات ---
-let startY=0,endY=0;
-const threshold=50;
+// منع الريفريش عند السحب للاسفل
+feed.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+}, {passive: false});
 
-feed.addEventListener("touchstart",(e)=>{ startY=e.touches[0].clientY; });
-feed.addEventListener("touchend",(e)=>{
-    endY=e.changedTouches[0].clientY;
-    const diff=startY-endY;
-    if(diff>threshold && currentIndex<videos.length-1){
-        // الأعلى
-        currentIndex++;
-        showVideo(currentIndex);
-    } else if(diff<-threshold && currentIndex>0){
-        // الأسفل
-        currentIndex--;
-        showVideo(currentIndex);
-    }
+// Scroll Snap TikTok style
+feed.addEventListener("scroll", () => {
+    if (isSnapping) return;
+    clearTimeout(feed.snapTimeout);
+
+    feed.snapTimeout = setTimeout(() => {
+        const scrollTop = feed.scrollTop;
+        const vh = window.innerHeight;
+        const index = Math.round(scrollTop / vh);
+
+        if(index === currentVideoIndex) return; // إذا لم يتغير الفيديو لا نفعل شيء
+
+        isSnapping = true;
+
+        feed.scrollTo({
+            top: index * vh,
+            behavior: "smooth"
+        });
+
+        // إيقاف جميع الفيديوهات وتشغيل الفيديو الحالي فقط
+        videos.forEach((v, i) => {
+            if (i === index) {
+                v.play();
+            } else {
+                v.pause();
+                v.currentTime = 0;
+            }
+        });
+
+        currentVideoIndex = index;
+
+        setTimeout(() => {
+            isSnapping = false;
+        }, 350);
+
+    }, 80);
 });
 </script>
