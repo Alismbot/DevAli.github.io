@@ -1,58 +1,123 @@
-<div id="series-container" style="height:100vh; overflow-y:scroll; scroll-snap-type:y mandatory; margin:0; padding:0;">
-    <!-- الحلقات سيتم إضافتها تلقائيًا -->
+<div class="series-container">
+    <h1 data-text="title"></h1>
+    <p data-text="description"></p>
+
+    <div class="social-buttons">
+        <a class="btn" href="https://t.me/WAMOD17" target="_blank">
+            <img src="telegram.png" class="icon"> 
+            <span data-text="telegram"></span>
+        </a>
+
+        <a class="btn" href="https://whatsapp.com/channel/..." target="_blank">
+            <img src="whatsapp.png" class="icon"> 
+            <span data-text="whatsapp"></span>
+        </a>
+
+        <a class="btn" href="https://youtube.com/@..." target="_blank">
+            <img src="youtube.png" class="icon"> 
+            <span data-text="youtube"></span>
+        </a>
+    </div>
+
+    <p data-text="extra" class="extra-text"></p>
+
+    <!-- ====== TEMPLATE لمسلسل جديد ====== -->
+    <div class="app-box">
+        <a href="pages/watch.html?series=loveblack"> 
+            <img src="assets/series/loveblack/loveblack.jpg" class="big-app-image">
+        </a>
+        <p class="app-desc">
+            اضغط على الصورة للانتقال لمشاهدة مسلسل Love Black
+        </p>
+    </div>
+
+    <!-- يمكن إضافة المزيد من المسلسلات بنفس الطريقة -->
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const params = new URLSearchParams(window.location.search);
-    const seriesName = params.get("series"); // ?page=series&series=loveblack
+<style>
+.series-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+    color: #fff;
+    line-height: 1.7;
+    font-size: 18px;
+}
 
-    const container = document.getElementById("series-container");
+.series-container h1 {
+    font-size: 40px;
+    margin-bottom: 20px;
+    color: #00e676;
+}
 
-    if (!seriesName) {
-        container.innerHTML = "<h2>⚠️ لم يتم تحديد السلسلة</h2>";
-        return;
-    }
+.series-container p {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
 
-    // المسار بالنسبة لجذر الموقع (index.html)
-    const seriesPath = `assets/series/${seriesName}/`;
+.social-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
 
-    // الحلقات معرفة مباشرة في الكود
-    const seriesEpisodes = {
-        "loveblack": ["ep1.mp4", "ep2.mp4", "ep3.mp4"],
-    };
+.extra-text {
+    font-size: 18px;
+    margin-top: 20px;
+    color: #ffd700;
+}
 
-    const episodes = seriesEpisodes[seriesName];
-    if (!episodes || episodes.length === 0) {
-        container.innerHTML = "<h2>⚠️ لا توجد حلقات لهذا المسلسل</h2>";
-        return;
-    }
+.social-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #111;
+    color: #00e676;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s;
+}
 
-    episodes.forEach(epFile => {
-        const div = document.createElement("div");
-        div.className = "episode";
-        div.style.height = "100vh";
-        div.style.scrollSnapAlign = "start";
+.social-buttons .btn:hover {
+    background-color: #00c75a;
+    color: #111;
+}
 
-        const video = document.createElement("video");
-        video.src = seriesPath + epFile;
-        video.controls = true;
-        video.style.width = "100%";
-        video.style.height = "100%";
-        video.style.objectFit = "cover";
+.social-buttons .btn img.icon {
+    width: 25px;
+    height: 25px;
+}
 
-        div.appendChild(video);
-        container.appendChild(div);
-    });
+.app-box {
+    background: #111;
+    padding: 20px;
+    margin: 30px auto;
+    border-radius: 15px;
+    max-width: 700px;
+    text-align: center;
+}
 
-    // تشغيل/إيقاف الفيديو عند ظهوره
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) entry.target.play();
-            else entry.target.pause();
-        });
-    }, { threshold: 0.7 });
+.big-app-image {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
 
-    document.querySelectorAll("video").forEach(video => observer.observe(video));
-});
-</script>
+.big-app-image:hover {
+    transform: scale(1.03);
+}
+
+.app-desc {
+    margin-top: 15px;
+    font-size: 18px;
+    color: #ffd700;
+}
+</style>
