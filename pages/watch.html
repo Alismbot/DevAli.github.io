@@ -1,25 +1,27 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Watch Series</title>
+<div class="watch-container">
+    <h1 id="series-title"></h1>
+
+    <div class="video-feed" id="video-feed">
+        <!-- الفيديوهات تولّد تلقائياً -->
+    </div>
+
+    <!-- أزرار جانبية -->
+    <div class="side-buttons">
+        <button id="like-btn">❤️</button>
+        <button id="episodes-btn">📺</button>
+        <button id="share-btn">🔗</button>
+    </div>
+</div>
 
 <style>
-body {
-    margin: 0;
-    padding: 0;
-    background: #000;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-}
-
 .watch-container {
     position: relative;
     width: 100%;
     height: 100vh;
     background: #000;
+    overflow: hidden;
     color: #fff;
+    font-family: Arial, sans-serif;
 }
 
 #series-title {
@@ -27,11 +29,8 @@ body {
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 22px;
-    z-index: 20;
-    background: rgba(0,0,0,0.6);
-    padding: 5px 15px;
-    border-radius: 10px;
+    font-size: 24px;
+    z-index: 10;
 }
 
 .video-feed {
@@ -46,7 +45,6 @@ body {
     height: 100vh;
     object-fit: cover;
     scroll-snap-align: start;
-    background: #000;
 }
 
 .side-buttons {
@@ -57,7 +55,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    z-index: 30;
+    z-index: 10;
 }
 
 .side-buttons button {
@@ -65,8 +63,8 @@ body {
     color: #00e676;
     border: none;
     padding: 10px 12px;
-    border-radius: 12px;
-    font-size: 22px;
+    border-radius: 10px;
+    font-size: 18px;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -76,108 +74,76 @@ body {
     color: #111;
 }
 </style>
-</head>
-<body>
 
-<div class="watch-container">
-    <h1 id="series-title"></h1>
-
-    <div class="video-feed" id="video-feed">
-        <!-- يتم إدخال الفيديوهات هنا تلقائياً -->
-    </div>
-
-    <div class="side-buttons">
-        <button id="like-btn">❤️</button>
-        <button id="episodes-btn">📺</button>
-        <button id="share-btn">🔗</button>
-    </div>
-</div>
 
 <script>
-/* --------------------------
-   1) جلب اسم المسلسل من الرابط
---------------------------- */
+// قراءة اسم المسلسل ?series=loveblack
 const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
-/* --------------------------
-   2) قائمة الحلقات
---------------------------- */
+// قائمة الحلقات (RAW links)
 const episodes = [
-    'ep1.mp4',
-    'ep2.mp4',
-    'ep3.mp4'
+    `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4`,
+    `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4`,
+    `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep3.mp4`
 ];
 
-const feed = document.getElementById('video-feed');
+const feed = document.getElementById("video-feed");
 
-/* --------------------------
-   3) إدخال الفيديوهات داخل الصفحة
---------------------------- */
-episodes.forEach(ep => {
-    const video = document.createElement('video');
-
-    video.src =
-        `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/${ep}?raw=1`;
-
-    video.playsInline = true;
-    video.controls = false;
-    video.autoplay = false;
-    video.loop = false;
-    video.preload = "metadata";
-
-    feed.appendChild(video);
+// إنشاء الفيديوهات
+episodes.forEach(url => {
+    const vid = document.createElement("video");
+    vid.src = url;
+    vid.controls = false;
+    vid.autoplay = false;
+    vid.loop = false;
+    feed.appendChild(vid);
 });
 
-/* --------------------------
-   4) Scroll Snap اليدوي
-   يمنع تجاوز 3 فيديوهات مرة واحدة
---------------------------- */
-let lockScroll = false;
+// ------------- نظام Scroll Pro (TikTok style) ----------------
 
-feed.addEventListener('scroll', () => {
-    if (lockScroll) return;
+let isSnapping = false;
 
-    lockScroll = true;
+feed.addEventListener("scroll", () => {
+    if (isSnapping) return;
 
-    setTimeout(() => {
-        const pos = feed.scrollTop;
+    clearTimeout(feed.snapTimeout);
+
+    feed.snapTimeout = setTimeout(() => {
+        const scrollTop = feed.scrollTop;
         const vh = window.innerHeight;
-        const index = Math.round(pos / vh);
+
+        // حساب اقرب فيديو
+        const index = Math.round(scrollTop / vh);
+
+        isSnapping = true;
 
         feed.scrollTo({
             top: index * vh,
             behavior: "smooth"
         });
 
-        lockScroll = false;
-    }, 120);
-});
-
-/* --------------------------
-   5) تشغيل فيديو واحد فقط
---------------------------- */
-const observer = new IntersectionObserver(
-    entries => {
-        entries.forEach(entry => {
-            const video = entry.target;
-
-            if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
-                video.play().catch(()=>{});
+        // تشغيل الفيديو الصحيح فقط
+        document.querySelectorAll(".video-feed video").forEach((v, i) => {
+            if (i === index) {
+                v.play();
             } else {
-                video.pause();
+                v.pause();
+                v.currentTime = 0;
             }
         });
-    },
-    { threshold: [0.7] }
-);
 
-// تفعيل المراقبة بعد إدخال الفيديوهات
-setTimeout(() => {
-    document.querySelectorAll("video").forEach(v => observer.observe(v));
-}, 300);
+        setTimeout(() => {
+            isSnapping = false;
+        }, 350);
+
+    }, 80);
+});
+
+// تشغيل أول فيديو تلقائياً بعد التحميل
+window.onload = () => {
+    const firstVideo = document.querySelector(".video-feed video");
+    if (firstVideo) firstVideo.play();
+};
 </script>
-
-</body>
-</html>
