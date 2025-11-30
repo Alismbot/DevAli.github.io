@@ -2,10 +2,9 @@
     <h1 id="series-title"></h1>
 
     <div class="video-feed" id="video-feed">
-        <!-- الفيديوهات تولّد تلقائياً -->
+        <!-- videos auto insert -->
     </div>
 
-    <!-- أزرار جانبية -->
     <div class="side-buttons">
         <button id="like-btn">❤️</button>
         <button id="episodes-btn">📺</button>
@@ -21,32 +20,43 @@
     background: #000;
     overflow: hidden;
     color: #fff;
-    font-family: Arial, sans-serif;
 }
 
+/* العنوان */
 #series-title {
     position: absolute;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 24px;
+    font-size: 22px;
     z-index: 10;
 }
 
+/* السحب العامودي */
 .video-feed {
     width: 100%;
-    height: 100%;
+    height: 100vh;
     overflow-y: scroll;
     scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;     /* أهم خط */
 }
 
-.video-feed video {
+/* الفيديو عنصر واحد */
+.video-feed > div {
     width: 100%;
     height: 100vh;
-    object-fit: cover;
     scroll-snap-align: start;
+    position: relative;
 }
 
+/* الفيديو */
+.video-feed video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* أزرار جانبية */
 .side-buttons {
     position: absolute;
     right: 10px;
@@ -55,34 +65,17 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    z-index: 10;
-}
-
-.side-buttons button {
-    background: rgba(17,17,17,0.7);
-    color: #00e676;
-    border: none;
-    padding: 10px 12px;
-    border-radius: 10px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.side-buttons button:hover {
-    background: #00e676;
-    color: #111;
+    z-index: 20;
 }
 </style>
 
-
 <script>
-// قراءة اسم المسلسل ?series=loveblack
+// قراءة اسم المسلسل
 const params = new URLSearchParams(window.location.search);
-const seriesName = params.get('series') || 'loveblack';
-document.getElementById('series-title').innerText = seriesName;
+const seriesName = params.get("series") || "loveblack";
+document.getElementById("series-title").innerText = seriesName;
 
-// قائمة الحلقات (RAW links)
+// روابط RAW
 const episodes = [
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4`,
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4`,
@@ -91,59 +84,56 @@ const episodes = [
 
 const feed = document.getElementById("video-feed");
 
-// إنشاء الفيديوهات
+// إنشاء عناصر الفيديو داخل DIV لكل حلقة
 episodes.forEach(url => {
+    const wrap = document.createElement("div");
     const vid = document.createElement("video");
     vid.src = url;
     vid.controls = false;
     vid.autoplay = false;
     vid.loop = false;
-    feed.appendChild(vid);
+
+    wrap.appendChild(vid);
+    feed.appendChild(wrap);
 });
 
-// ------------- نظام Scroll Pro (TikTok style) ----------------
-
-let isSnapping = false;
+// نظام scroll snap الاحترافي
+let currentIndex = 0;
+let allowSnap = true;
 
 feed.addEventListener("scroll", () => {
-    if (isSnapping) return;
+    if (!allowSnap) return;
 
     clearTimeout(feed.snapTimeout);
 
     feed.snapTimeout = setTimeout(() => {
-        const scrollTop = feed.scrollTop;
         const vh = window.innerHeight;
+        const newIndex = Math.round(feed.scrollTop / vh);
 
-        // حساب اقرب فيديو
-        const index = Math.round(scrollTop / vh);
-
-        isSnapping = true;
+        currentIndex = newIndex;
+        allowSnap = false;
 
         feed.scrollTo({
-            top: index * vh,
+            top: currentIndex * vh,
             behavior: "smooth"
         });
 
-        // تشغيل الفيديو الصحيح فقط
         document.querySelectorAll(".video-feed video").forEach((v, i) => {
-            if (i === index) {
-                v.play();
-            } else {
+            if (i === currentIndex) v.play();
+            else {
                 v.pause();
                 v.currentTime = 0;
             }
         });
 
-        setTimeout(() => {
-            isSnapping = false;
-        }, 350);
+        setTimeout(() => allowSnap = true, 350);
 
-    }, 80);
+    }, 70);
 });
 
-// تشغيل أول فيديو تلقائياً بعد التحميل
+// تشغيل أول فيديو
 window.onload = () => {
-    const firstVideo = document.querySelector(".video-feed video");
-    if (firstVideo) firstVideo.play();
+    const vid = document.querySelector(".video-feed video");
+    if (vid) vid.play();
 };
 </script>
