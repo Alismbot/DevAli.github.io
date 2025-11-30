@@ -77,12 +77,12 @@
 </style>
 
 <script>
-// اسم المسلسل
+// قراءة اسم المسلسل ?series=loveblack
 const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
-// روابط RAW للفيديوهات
+// قائمة الحلقات (RAW links)
 const episodes = [
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4`,
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4`,
@@ -100,68 +100,62 @@ episodes.forEach(url => {
     vid.loop = false;
     feed.appendChild(vid);
 
-    // عند الضغط على الفيديو للتشغيل / الإيقاف
+    // الضغط على الفيديو لتشغيله بعد الإيقاف
     vid.addEventListener('click', () => {
+        document.querySelectorAll(".video-feed video").forEach((v) => {
+            if (v !== vid) {
+                v.pause();
+                v.currentTime = 0;
+            }
+        });
+
         if (vid.paused) vid.play();
-        else vid.pause();
     });
 });
 
-// ------------------ Scroll TikTok style ------------------
-let currentIndex = 0;
+// ------------- نظام Scroll Snap (TikTok style) ----------------
+
 let isSnapping = false;
 
-function snapToIndex(index) {
-    const vh = window.innerHeight;
-    feed.scrollTo({
-        top: index * vh,
-        behavior: "smooth"
-    });
+feed.addEventListener("scroll", () => {
+    if (isSnapping) return;
 
-    document.querySelectorAll(".video-feed video").forEach((v, i) => {
-        if (i === index) v.play();
-        else {
-            v.pause();
-            v.currentTime = 0;
-        }
-    });
+    clearTimeout(feed.snapTimeout);
 
-    currentIndex = index;
-}
+    feed.snapTimeout = setTimeout(() => {
+        const scrollTop = feed.scrollTop;
+        const vh = window.innerHeight;
 
-// تشغيل الفيديو الأول تلقائي
+        // حساب اقرب فيديو
+        const index = Math.round(scrollTop / vh);
+
+        isSnapping = true;
+
+        feed.scrollTo({
+            top: index * vh,
+            behavior: "smooth"
+        });
+
+        // تشغيل الفيديو الصحيح فقط
+        document.querySelectorAll(".video-feed video").forEach((v, i) => {
+            if (i === index) {
+                v.play();
+            } else {
+                v.pause();
+                v.currentTime = 0;
+            }
+        });
+
+        setTimeout(() => {
+            isSnapping = false;
+        }, 350);
+
+    }, 80);
+});
+
+// تشغيل أول فيديو تلقائياً بعد التحميل
 window.onload = () => {
-    snapToIndex(0);
+    const firstVideo = document.querySelector(".video-feed video");
+    if (firstVideo) firstVideo.play();
 };
-
-// عند السحب
-let startY = 0;
-let isTouching = false;
-
-feed.addEventListener("touchstart", e => {
-    startY = e.touches[0].clientY;
-    isTouching = true;
-});
-
-feed.addEventListener("touchmove", e => {
-    e.preventDefault(); // منع السحب الافتراضي
-});
-
-feed.addEventListener("touchend", e => {
-    if (!isTouching) return;
-    const endY = e.changedTouches[0].clientY;
-    const delta = startY - endY;
-    const threshold = window.innerHeight / 4; // يجب السحب ربع الشاشة لتغيير الفيديو
-
-    let newIndex = currentIndex;
-
-    if (delta > threshold && currentIndex < episodes.length -1) {
-        newIndex = currentIndex +1;
-    } else if (delta < -threshold && currentIndex >0) {
-        newIndex = currentIndex -1;
-    }
-
-    snapToIndex(newIndex);
-    isTouching = false;
-});
 </script>
