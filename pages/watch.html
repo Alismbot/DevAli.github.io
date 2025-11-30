@@ -19,7 +19,7 @@
     width: 100%;
     height: 100vh;
     background: #000;
-    overflow: hidden; /* منع scroll اليدوي */
+    overflow: hidden;
     color: #fff;
     font-family: Arial, sans-serif;
 }
@@ -35,24 +35,17 @@
 
 .video-feed {
     width: 100%;
-    height: 100vh;
-    overflow: hidden;
-    position: relative;
-}
-
-.video-page {
-    width: 100%;
-    height: 100vh;
-    position: absolute;
-    top: 0;
-    left: 0;
-    transition: transform 0.35s ease-out;
-}
-
-.video-page video {
-    width: 100%;
     height: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+}
+
+.video-feed video {
+    width: 100%;
+    height: 100vh;
     object-fit: cover;
+    scroll-snap-align: start;
+    cursor: pointer;
 }
 
 .side-buttons {
@@ -84,12 +77,12 @@
 </style>
 
 <script>
-// قراءة اسم المسلسل ?series=loveblack
+// اسم المسلسل
 const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
-// قائمة الحلقات (RAW links)
+// روابط RAW للفيديوهات
 const episodes = [
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4`,
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4`,
@@ -98,59 +91,77 @@ const episodes = [
 
 const feed = document.getElementById("video-feed");
 
-// إنشاء الصفحات
-episodes.forEach((url, i) => {
-    const page = document.createElement("div");
-    page.className = "video-page";
-    page.style.transform = `translateY(${i * 100}vh)`;
-
+// إنشاء الفيديوهات
+episodes.forEach(url => {
     const vid = document.createElement("video");
     vid.src = url;
-    vid.autoplay = false;
     vid.controls = false;
+    vid.autoplay = false;
     vid.loop = false;
+    feed.appendChild(vid);
 
-    page.appendChild(vid);
-    feed.appendChild(page);
+    // عند الضغط على الفيديو للتشغيل / الإيقاف
+    vid.addEventListener('click', () => {
+        if (vid.paused) vid.play();
+        else vid.pause();
+    });
 });
 
-// ---------------- TikTok Paging Engine ----------------
-let current = 0;
+// ------------------ Scroll TikTok style ------------------
+let currentIndex = 0;
+let isSnapping = false;
+
+function snapToIndex(index) {
+    const vh = window.innerHeight;
+    feed.scrollTo({
+        top: index * vh,
+        behavior: "smooth"
+    });
+
+    document.querySelectorAll(".video-feed video").forEach((v, i) => {
+        if (i === index) v.play();
+        else {
+            v.pause();
+            v.currentTime = 0;
+        }
+    });
+
+    currentIndex = index;
+}
+
+// تشغيل الفيديو الأول تلقائي
+window.onload = () => {
+    snapToIndex(0);
+};
+
+// عند السحب
 let startY = 0;
-let endY = 0;
-const total = episodes.length;
+let isTouching = false;
 
 feed.addEventListener("touchstart", e => {
     startY = e.touches[0].clientY;
+    isTouching = true;
 });
 
 feed.addEventListener("touchmove", e => {
-    endY = e.touches[0].clientY;
+    e.preventDefault(); // منع السحب الافتراضي
 });
 
-feed.addEventListener("touchend", () => {
-    const diff = startY - endY;
-    if (Math.abs(diff) < 40) return; // سحب ضعيف → تجاهل
+feed.addEventListener("touchend", e => {
+    if (!isTouching) return;
+    const endY = e.changedTouches[0].clientY;
+    const delta = startY - endY;
+    const threshold = window.innerHeight / 4; // يجب السحب ربع الشاشة لتغيير الفيديو
 
-    if (diff > 40 && current < total - 1) current++;  // سحب للأعلى → الفيديو التالي
-    if (diff < -40 && current > 0) current--;        // سحب للأسفل → الفيديو السابق
+    let newIndex = currentIndex;
 
-    updatePages();
+    if (delta > threshold && currentIndex < episodes.length -1) {
+        newIndex = currentIndex +1;
+    } else if (delta < -threshold && currentIndex >0) {
+        newIndex = currentIndex -1;
+    }
+
+    snapToIndex(newIndex);
+    isTouching = false;
 });
-
-function updatePages() {
-    document.querySelectorAll(".video-page").forEach((p, i) => {
-        p.style.transform = `translateY(${(i - current) * 100}vh)`;
-    });
-
-    document.querySelectorAll(".video-page video").forEach((v, i) => {
-        if (i === current) v.play();
-        else { v.pause(); v.currentTime = 0; }
-    });
-}
-
-// تشغيل أول فيديو تلقائياً
-window.onload = () => {
-    updatePages();
-};
 </script>
