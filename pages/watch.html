@@ -1,12 +1,9 @@
 <div class="watch-container">
     <h1 id="series-title"></h1>
+    <div class="video-feed" id="video-feed"></div>
 
-    <div class="video-feed" id="video-feed">
-        <!-- الفيديوهات تولّد تلقائياً -->
-    </div>
-
-    <!-- زر تشغيل/إيقاف في منتصف الفيديو -->
-    <button id="play-pause-btn">▶️</button>
+    <!-- زر تشغيل/إيقاف في وسط الشاشة -->
+    <div id="play-btn">▶️</div>
 
     <!-- أزرار جانبية -->
     <div class="side-buttons">
@@ -39,30 +36,30 @@
 .video-feed {
     width: 100%;
     height: 100%;
-    overflow-y: scroll;
-    scroll-snap-type: y mandatory;
+    position: relative;
 }
 
 .video-feed video {
     width: 100%;
     height: 100vh;
     object-fit: cover;
-    scroll-snap-align: start;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
 }
 
-#play-pause-btn {
+#play-btn {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 48px;
-    color: #fff;
-    background: none;
-    border: none;
+    font-size: 60px;
+    color: #00e676;
     cursor: pointer;
-    z-index: 20;
     opacity: 0;
     transition: opacity 0.3s;
+    z-index: 20;
 }
 
 .side-buttons {
@@ -94,12 +91,19 @@
 </style>
 
 <script>
-// قراءة اسم المسلسل ?series=loveblack
+// منع Refresh عند السحب للأسفل
+document.body.addEventListener('touchmove', function(e){
+    if (e.target.closest('.watch-container')) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+// اسم المسلسل من الرابط
 const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
-// قائمة الحلقات (RAW links)
+// حلقات RAW
 const episodes = [
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4`,
     `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4`,
@@ -109,86 +113,83 @@ const episodes = [
 const feed = document.getElementById("video-feed");
 
 // إنشاء الفيديوهات
-episodes.forEach(url => {
+let currentIndex = 0;
+const videoElements = episodes.map((url, i) => {
     const vid = document.createElement("video");
     vid.src = url;
-    vid.controls = false;
     vid.autoplay = false;
     vid.loop = false;
+    vid.controls = false;
+    vid.style.zIndex = i === 0 ? 1 : 0;
     feed.appendChild(vid);
+    return vid;
 });
 
-const videos = document.querySelectorAll(".video-feed video");
-let currentIndex = 0;
+// إظهار أول فيديو
+videoElements[0].style.display = 'block';
+videoElements[0].play();
 
-// تشغيل الفيديو الحالي فقط
-function playCurrent(index) {
-    videos.forEach((v, i) => {
-        if(i === index){
-            v.play();
-        } else {
-            v.pause();
-            v.currentTime = 0;
-        }
-    });
-}
-playCurrent(currentIndex);
+// زر التشغيل في الوسط
+const playBtn = document.getElementById('play-btn');
+let isPlaying = true;
 
-// منع السحب للاعلى/الاسفل من تفعيل الريفريش
-let touchStartY = 0;
-feed.addEventListener('touchstart', e => {
-    touchStartY = e.touches[0].clientY;
-}, {passive: false});
-feed.addEventListener('touchmove', e => {
-    const touchEndY = e.touches[0].clientY;
-    if(Math.abs(touchEndY - touchStartY) > 0){
-        e.preventDefault(); // منع الريفريش
-    }
-}, {passive: false});
-
-// التعامل مع Scroll snap
-let isScrolling = false;
-feed.addEventListener("scroll", () => {
-    if(isScrolling) return;
-    isScrolling = true;
-    clearTimeout(feed.scrollTimeout);
-    feed.scrollTimeout = setTimeout(() => {
-        const vh = window.innerHeight;
-        const newIndex = Math.round(feed.scrollTop / vh);
-        if(newIndex !== currentIndex){
-            currentIndex = newIndex;
-            playCurrent(currentIndex);
-        }
-        feed.scrollTo({top: currentIndex * vh, behavior: "smooth"});
-        isScrolling = false;
-    }, 100);
-});
-
-// زر التشغيل/الإيقاف
-const playBtn = document.getElementById("play-pause-btn");
-
-function showPlayBtn() {
-    playBtn.style.opacity = 1;
-    clearTimeout(playBtn.hideTimeout);
-    playBtn.hideTimeout = setTimeout(() => {
-        playBtn.style.opacity = 0;
-    }, 2000);
-}
-
-playBtn.addEventListener("click", () => {
-    const vid = videos[currentIndex];
-    if(vid.paused){
+playBtn.addEventListener('click', () => {
+    const vid = videoElements[currentIndex];
+    if (vid.paused) {
         vid.play();
+        isPlaying = true;
+        playBtn.style.opacity = 0;
     } else {
         vid.pause();
+        isPlaying = false;
+        playBtn.style.opacity = 1;
     }
 });
 
-// اظهار الزر عند الضغط على الفيديو
-feed.addEventListener("click", showPlayBtn);
+// إظهار الزر عند النقر على الفيديو
+videoElements.forEach(v => {
+    v.addEventListener('click', () => {
+        playBtn.style.opacity = 1;
+        setTimeout(() => playBtn.style.opacity = 0, 1000);
+    });
+});
 
-// تشغيل أول فيديو بعد التحميل
-window.onload = () => {
-    playCurrent(currentIndex);
-};
+// التحكم في السحب (Touch)
+let startY = 0;
+let endY = 0;
+
+feed.addEventListener('touchstart', (e) => {
+    startY = e.touches[0].clientY;
+});
+
+feed.addEventListener('touchend', (e) => {
+    endY = e.changedTouches[0].clientY;
+    const diff = startY - endY;
+
+    if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+            // السحب لأعلى -> الحلقة التالية
+            if (currentIndex < videoElements.length -1) {
+                changeVideo(currentIndex + 1);
+            }
+        } else {
+            // السحب لأسفل -> الحلقة السابقة
+            if (currentIndex > 0) {
+                changeVideo(currentIndex - 1);
+            }
+        }
+    }
+});
+
+function changeVideo(newIndex) {
+    videoElements[currentIndex].pause();
+    videoElements[currentIndex].style.display = 'none';
+    videoElements[currentIndex].style.zIndex = 0;
+
+    currentIndex = newIndex;
+    videoElements[currentIndex].style.display = 'block';
+    videoElements[currentIndex].style.zIndex = 1;
+    videoElements[currentIndex].play();
+    isPlaying = true;
+}
 </script>
