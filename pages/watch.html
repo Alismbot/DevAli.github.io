@@ -1,127 +1,74 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>مشاهدة المسلسل</title>
-<style>
-body, html {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background: #000;
-    color: #fff;
-    overflow: hidden;
-}
-
-.watch-container {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-}
-
-#series-title {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 24px;
-    z-index: 10;
-}
-
-.video-feed {
-    width: 100%;
-    height: 100%;
-    scroll-snap-type: y mandatory;
-    overflow-y: scroll;
-}
-
-.video-feed video {
-    width: 100%;
-    height: 100vh;
-    object-fit: cover;
-    scroll-snap-align: start;
-    background: #000;
-}
-
-.side-buttons {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    z-index: 10;
-}
-
-.side-buttons button {
-    background: rgba(17,17,17,0.7);
-    color: #00e676;
-    border: none;
-    padding: 10px 12px;
-    border-radius: 10px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.side-buttons button:hover {
-    background: #00e676;
-    color: #111;
-}
-</style>
-</head>
-<body>
-
-<div class="watch-container">
-    <h1 id="series-title"></h1>
-    <div class="video-feed" id="video-feed">
-        <!-- الفيديوهات ستظهر هنا تلقائياً -->
-    </div>
-
-    <!-- أزرار جانبية -->
-    <div class="side-buttons">
-        <button id="like-btn">❤️</button>
-        <button id="episodes-btn">📺</button>
-        <button id="share-btn">🔗</button>
-    </div>
-</div>
-
 <script>
-// الحصول على اسم المسلسل من الرابط ?series=loveblack
 const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
-// قائمة الحلقات
-const episodes = ['ep1.mp4','ep2.mp4','ep3.mp4']; // يمكنك تعديلها أو إضافة حلقات جديدة
-
-// رابط Raw على GitHub
-const baseRawURL = 'https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/';
+// استعمال GitHub RAW
+const episodes = [
+    'ep1.mp4',
+    'ep2.mp4',
+    'ep3.mp4'
+];
 
 const feed = document.getElementById('video-feed');
 
+// إنشاء الفيديوهات
 episodes.forEach(ep => {
     const video = document.createElement('video');
-    video.src = `${baseRawURL}${seriesName}/${ep}`;
-    video.controls = true;
+    video.src = `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/${ep}`;
+    video.controls = false;
     video.autoplay = false;
     video.loop = false;
+    video.playsInline = true;
     video.preload = "metadata";
     feed.appendChild(video);
 });
 
-// أزرار جانبية (تجريبية)
-document.getElementById('like-btn').addEventListener('click', () => alert('تم الإعجاب!'));
-document.getElementById('episodes-btn').addEventListener('click', () => alert('قائمة الحلقات'));
-document.getElementById('share-btn').addEventListener('click', () => {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url);
-    alert('تم نسخ رابط المسلسل!');
-});
-</script>
+// -----------------------------------------------------------
+//   1) منع تجاوز الفيديوهات أثناء السحب
+// -----------------------------------------------------------
+let isScrolling = false;
+feed.addEventListener('scroll', () => {
+    if (isScrolling) return;
 
-</body>
-</html>
+    isScrolling = true;
+
+    setTimeout(() => {
+        const scrollPos = feed.scrollTop;
+        const videoHeight = window.innerHeight;
+        const index = Math.round(scrollPos / videoHeight);
+
+        feed.scrollTo({
+            top: index * videoHeight,
+            behavior: "smooth"
+        });
+
+        isScrolling = false;
+    }, 120);
+});
+
+// -----------------------------------------------------------
+//   2) تشغيل فيديو واحد فقط + إيقاف الآخرين
+// -----------------------------------------------------------
+const observer = new IntersectionObserver(
+    entries => {
+        entries.forEach(entry => {
+            const video = entry.target;
+
+            if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
+                // تشغيل الفيديو المتواجد بأكبر نسبة داخل الشاشة
+                video.play().catch(()=>{});
+            } else {
+                // إيقاف أي فيديو آخر
+                video.pause();
+                video.currentTime = 0; // يبدأ من الأول عند العودة
+            }
+        });
+    },
+    {
+        threshold: [0.7]  // يجب أن يكون 70% داخل الشاشة
+    }
+);
+
+document.querySelectorAll('video').forEach(v => observer.observe(v));
+</script>
