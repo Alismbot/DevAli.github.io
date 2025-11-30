@@ -86,7 +86,7 @@ const feed = document.getElementById('video-feed');
 
 episodes.forEach(ep => {
     const video = document.createElement('video');
-    video.src = `assets/series/${seriesName}/${ep}`;
+    video.src = `../assets/series/${seriesName}/${ep}`;
     video.controls = true;
     video.autoplay = false;
     video.loop = false;
