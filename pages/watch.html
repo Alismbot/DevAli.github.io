@@ -7,7 +7,6 @@
 <style>
 /* --- عام --- */
 html,body{margin:0;padding:0;height:100%;-webkit-tap-highlight-color:transparent;}
-/* منع pull-to-refresh قدر الإمكان */
 html, body { overscroll-behavior-y: contain; }
 
 /* الحاوية */
@@ -58,9 +57,9 @@ html, body { overscroll-behavior-y: contain; }
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
-  font-size:70px;             /* حجم المثلث */
+  font-size:70px;
   color: rgba(255,255,255,0.95);
-  background: transparent;    /* لا خلفية */
+  background: transparent;
   border: none;
   padding: 0;
   margin: 0;
@@ -68,7 +67,7 @@ html, body { overscroll-behavior-y: contain; }
   z-index:40;
   opacity: 0;
   transition: opacity .25s;
-  pointer-events: none;       /* افتراضيًا لا يلتقط اللمسات إلا عند إظهار */
+  pointer-events: none;
 }
 
 /* زر الحلقات دائري على اليمين في الوسط */
@@ -97,10 +96,10 @@ html, body { overscroll-behavior-y: contain; }
 /* عند الظهور يصبح متاحًا */
 #episodes-btn.show { opacity: 1; pointer-events: auto; }
 
-/* قائمة الحلقات (أرقام) بجانب الزر (على اليسار منه) */
+/* قائمة الحلقات (على يسار الزر) */
 #episodes-list {
   position: absolute;
-  right: 90px; /* يبعد عن الزر الدائري */
+  right: 90px;
   top: 50%;
   transform: translateY(-50%);
   z-index:45;
@@ -127,12 +126,14 @@ html, body { overscroll-behavior-y: contain; }
   text-align:right;
 }
 
-/* إظهار بصيغة بسيطة */
+/* إظهار */
 #episodes-list.show { display:flex; }
 
-/* لمسات جمالية */
-#episodes-btn:active { transform: scale(.96); }
+/* إظهار الزر الأوسط */
 #play-btn.show { opacity: 1; pointer-events: auto; }
+
+/* لمسات */
+#episodes-btn:active { transform: scale(.96); }
 </style>
 </head>
 <body>
@@ -160,7 +161,7 @@ const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
-// ضع هنا حلقاتك (Raw GitHub links) - يمكن تعديل / جلب ديناميكياً لاحقاً
+// حلقاتك (raw links مع ?raw=1 لتوافق GitHub)
 const episodes = [
   `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4?raw=1`,
   `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4?raw=1`,
@@ -173,7 +174,7 @@ const playBtn = document.getElementById('play-btn');
 const episodesBtn = document.getElementById('episodes-btn');
 const episodesList = document.getElementById('episodes-list');
 
-// منع pull-to-refresh داخل الحاوية (يحاول منع السلوك في المتصفحات الحديثة)
+// محاولة منع pull-to-refresh داخل الحاوية
 document.body.addEventListener('touchmove', function(e){
   if (e.target.closest('.watch-container')) e.preventDefault();
 }, { passive:false });
@@ -197,19 +198,17 @@ const videoElements = episodes.map((url, i) => {
 
 // إظهار وتشغيل الفيديو الأول
 videoElements[0].style.display = 'block';
-videoElements[0].play();
+videoElements[0].play().catch(()=>{});
 
 // ========================
 // دوال مساعدة: تغيير فيديو
 // ========================
 function showVideo(index) {
   if (index < 0 || index >= videoElements.length) return;
-  // إيقاف الحالي واخفاؤه
   videoElements.forEach((vv, i) => {
     if (i === index) {
       vv.style.display = 'block';
       vv.style.zIndex = 1;
-      // نلعب الفيديو المطلوب
       vv.play().catch(()=>{});
     } else {
       vv.pause();
@@ -222,20 +221,18 @@ function showVideo(index) {
 }
 
 // ========================
-// زر التشغيل في الوسط
-// - يظهر/يختفي مع نقرة الشاشة
-// - يعمل play/pause على الفيديو الحالي
+// واجهة عرض/إخفاء الأزرار
 // ========================
 let uiHideTimer = null;
-function showUIButtons() {
-  // إظهار play و episodes
+function showUI() {
+  // أظهر الزرين
   playBtn.classList.add('show');
   episodesBtn.classList.add('show');
-  // اجعل playBtn يتلقى اللمسات
+  // اجعلهم يمكّنون النقر
   playBtn.style.pointerEvents = 'auto';
   episodesBtn.style.pointerEvents = 'auto';
 
-  // إخفاء بعد 2 ثانية ما لم تفتح قائمة الحلقات
+  // إخفاؤهم بعد 2 ثانية إن لم تُفتح القائمة
   clearTimeout(uiHideTimer);
   uiHideTimer = setTimeout(() => {
     if (!episodesList.classList.contains('show')) {
@@ -247,125 +244,136 @@ function showUIButtons() {
   }, 2000);
 }
 
-// اضغط على المساحة (feed) لإظهار/إخفاء الأزرار
+function hideUIImmediately() {
+  clearTimeout(uiHideTimer);
+  playBtn.classList.remove('show');
+  episodesBtn.classList.remove('show');
+  playBtn.style.pointerEvents = 'none';
+  episodesBtn.style.pointerEvents = 'none';
+}
+
+// النقر على منطقة الفيديو: إظهار الواجهة أو إخفاؤها إذا كانت ظاهرة
+let lastTapTime = 0;
 feed.addEventListener('click', (e) => {
-  // عرض الأزرار مؤقتًا
-  showUIButtons();
+  // إذا كانت القائمة مفتوحة، أغلقها وابقِ الأزرار ظاهرة قليلاً
+  if (episodesList.classList.contains('show')) {
+    episodesList.classList.remove('show');
+    episodesList.setAttribute('aria-hidden','true');
+    showUI();
+    return;
+  }
+
+  // إذا الأزرار مرئیة الآن، إخفِها فوراً عند النقر الثاني
+  const now = Date.now();
+  if (playBtn.classList.contains('show')) {
+    // إخفاء فوري
+    hideUIImmediately();
+    lastTapTime = now;
+    return;
+  }
+
+  // وإلا، أظهر الواجهة
+  showUI();
+  lastTapTime = now;
 });
 
-// عندما ينقر المستخدم زر التشغيل
+// ========================
+// زر التشغيل المركزي
+// ========================
 playBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   const v = videoElements[currentIndex];
   if (v.paused) {
     v.play().catch(()=>{});
-    // نختفي فورًا (سلوك كهذا في تيك توك)
+    // إخفاء الزر مباشرة كما في تيك توك
     playBtn.classList.remove('show');
     playBtn.style.pointerEvents = 'none';
   } else {
     v.pause();
-    // إبقاء الزر ظاهرًا بعد الإيقاف
-    showUIButtons();
+    // إبقاء الواجهة ظاهرة بعد الإيقاف
+    showUI();
   }
 });
 
 // ========================
-// زر الحلقات: دائري على اليمين
-// - عند الضغط يفتح قائمة الحلقات (أرقام)
-// - عند اختيار رقم => تشغيل مباشرة
+// زر الحلقات: فتح القائمة وتوليدها
 // ========================
 episodesBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  // toggle قائمة الحلقات
   if (episodesList.classList.contains('show')) {
     episodesList.classList.remove('show');
     episodesList.setAttribute('aria-hidden','true');
-  } else {
-    populateEpisodesList();
-    episodesList.classList.add('show');
-    episodesList.setAttribute('aria-hidden','false');
-    // إبقاء الأزرار مرئية طوال فتح القائمة
+    // اخفاء الواجهة بعد تأخير صغير
     clearTimeout(uiHideTimer);
-    playBtn.classList.add('show');
-    episodesBtn.classList.add('show');
-    playBtn.style.pointerEvents = 'auto';
-    episodesBtn.style.pointerEvents = 'auto';
+    uiHideTimer = setTimeout(() => hideUIImmediately(), 1000);
+    return;
   }
+  populateEpisodesList();
+  episodesList.classList.add('show');
+  episodesList.setAttribute('aria-hidden','false');
+  // إبقاء الأزرار ظاهرة أثناء عرض القائمة
+  clearTimeout(uiHideTimer);
+  playBtn.classList.add('show');
+  episodesBtn.classList.add('show');
+  playBtn.style.pointerEvents = 'auto';
+  episodesBtn.style.pointerEvents = 'auto';
 });
 
-// ملء قائمة الحلقات بأزرار رقمية
-function populateEpisodesList(){
-  episodesList.innerHTML = '';
+// تعبئة قائمة الحلقات كأرقام
+function populateEpisodesList() {
+  episodesList.innerHTML = ''; // تفريغ
   episodes.forEach((ep, i) => {
     const b = document.createElement('button');
     b.textContent = (i+1).toString();
     b.addEventListener('click', (ev) => {
       ev.stopPropagation();
-      // شغل الحلقة المختارة
+      // شغل الحلقة فوراً
       showVideo(i);
-      // أغلق القائمة بعد الاختيار
+      // غلق القائمة
       episodesList.classList.remove('show');
       episodesList.setAttribute('aria-hidden','true');
-      // اخفاء الأزرار بعد وقت قصير
+      // إخفاء الأزرار بعد لحظة
       clearTimeout(uiHideTimer);
-      uiHideTimer = setTimeout(()=> {
-        playBtn.classList.remove('show');
-        episodesBtn.classList.remove('show');
-        playBtn.style.pointerEvents = 'none';
-        episodesBtn.style.pointerEvents = 'none';
-      }, 1000);
+      uiHideTimer = setTimeout(() => hideUIImmediately(), 800);
     });
     episodesList.appendChild(b);
   });
 }
 
-// إغلاق القائمة عند النقر في أي مكان خارجها
+// عند النقر في أي مكان آخر نغلق القائمة
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('.episodes-list') && !e.target.closest('#episodes-btn')) {
+  if (!e.target.closest('#episodes-list') && !e.target.closest('#episodes-btn')) {
     episodesList.classList.remove('show');
     episodesList.setAttribute('aria-hidden','true');
   }
 });
 
 // ========================
-// نظام التنقل بالسحب (touchstart/touchend)
-//: نحافظ على نفس منطقك: سحب أكثر من 50px ينتقل فيديو واحد فقط
+// نظام السحب (touchstart/touchend) - لا نغيره (مؤقت=50px)
 // ========================
 let startY = 0;
 feed.addEventListener('touchstart', (e) => {
-  // نسمح للنقرة بالوصول لعرض الأزرار، لكن نحفظ نقطة البداية
   startY = e.touches[0].clientY;
 }, { passive:true });
 
 feed.addEventListener('touchend', (e) => {
   const endY = e.changedTouches[0].clientY;
   const diff = startY - endY;
-  const TH = 50; // العتبة كما كانت لديك
-
+  const TH = 50;
   if (Math.abs(diff) > TH) {
     if (diff > 0) {
-      // إلى الأعلى -> التالي
-      if (currentIndex < videoElements.length - 1) {
-        showVideo(currentIndex + 1);
-      }
+      if (currentIndex < videoElements.length - 1) showVideo(currentIndex + 1);
     } else {
-      // إلى الأسفل -> السابق
-      if (currentIndex > 0) {
-        showVideo(currentIndex - 1);
-      }
+      if (currentIndex > 0) showVideo(currentIndex - 1);
     }
   }
 }, { passive:true });
 
-// ========================
-// نهج إضافي لمنع refresh في بعض المتصفحات
-// (نمنع touchmove داخل الحاوية فقط حينما يكون التمرير عمودياً)
-// ========================
+// منع بعض سلوك الـpull-to-refresh في متصفحات بعينها
 let lastTouchY = 0;
 feed.addEventListener('touchmove', (e) => {
   const ty = e.touches[0].clientY;
   const dy = Math.abs(ty - lastTouchY);
-  // لو كان تحريك عمودي كبير، امنع السلوك الافتراضي (يحاول منع pull-to-refresh)
   if (dy > 2) e.preventDefault && e.preventDefault();
   lastTouchY = ty;
 }, { passive:false });
