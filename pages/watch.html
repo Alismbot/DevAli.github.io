@@ -1,241 +1,375 @@
-<div class="watch-container">
-    <h1 id="series-title"></h1>
-    <div class="video-feed" id="video-feed"></div><!-- زر التشغيل/الإيقاف في وسط الشاشة -->
-<div id="play-btn">▶️</div>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Watch - WAMOD</title>
+<style>
+/* --- عام --- */
+html,body{margin:0;padding:0;height:100%;-webkit-tap-highlight-color:transparent;}
+/* منع pull-to-refresh قدر الإمكان */
+html, body { overscroll-behavior-y: contain; }
 
-<!-- زر الحلقات أسفل الشاشة -->
-<div class="episodes-button-container">
-    <button id="episodes-btn">📺 الحلقات</button>
-    <div id="episodes-list" class="episodes-list hidden"></div>
+/* الحاوية */
+.watch-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background:#000;
+  overflow: hidden;
+  color:#fff;
+  font-family: Arial, sans-serif;
+}
+
+/* العنوان */
+#series-title {
+  position: absolute;
+  top:10px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:20px;
+  z-index:30;
+  pointer-events:none;
+}
+
+/* منطقة الفيديو */
+.video-feed {
+  width:100%;
+  height:100%;
+  position:relative;
+}
+
+/* الفيديو */
+.video-feed video {
+  width:100%;
+  height:100vh;
+  object-fit:cover;
+  position:absolute;
+  top:0;
+  left:0;
+  display:none;
+  -webkit-user-select:none;
+  user-select:none;
+}
+
+/* زر التشغيل - مثلث بدون خلفية */
+#play-btn {
+  position: absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:70px;             /* حجم المثلث */
+  color: rgba(255,255,255,0.95);
+  background: transparent;    /* لا خلفية */
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  z-index:40;
+  opacity: 0;
+  transition: opacity .25s;
+  pointer-events: none;       /* افتراضيًا لا يلتقط اللمسات إلا عند إظهار */
+}
+
+/* زر الحلقات دائري على اليمين في الوسط */
+#episodes-btn {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index:40;
+  width:66px;
+  height:66px;
+  border-radius:50%;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  border: none;
+  font-size:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition: transform .12s, background .12s, opacity .2s;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* عند الظهور يصبح متاحًا */
+#episodes-btn.show { opacity: 1; pointer-events: auto; }
+
+/* قائمة الحلقات (أرقام) بجانب الزر (على اليسار منه) */
+#episodes-list {
+  position: absolute;
+  right: 90px; /* يبعد عن الزر الدائري */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index:45;
+  background: rgba(0,0,0,0.85);
+  padding:10px;
+  border-radius:10px;
+  display:flex;
+  flex-direction: column;
+  gap:8px;
+  max-height:60vh;
+  overflow:auto;
+  display:none;
+}
+
+/* أزرار الأرقام */
+#episodes-list button {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #00e676;
+  padding:8px 12px;
+  font-size:16px;
+  border-radius:8px;
+  cursor:pointer;
+  text-align:right;
+}
+
+/* إظهار بصيغة بسيطة */
+#episodes-list.show { display:flex; }
+
+/* لمسات جمالية */
+#episodes-btn:active { transform: scale(.96); }
+#play-btn.show { opacity: 1; pointer-events: auto; }
+</style>
+</head>
+<body>
+
+<div class="watch-container">
+  <h1 id="series-title"></h1>
+
+  <div class="video-feed" id="video-feed"></div>
+
+  <!-- زر التشغيل/إيقاف مثلث (بدون خلفية) -->
+  <button id="play-btn" aria-label="Play/Pause">►</button>
+
+  <!-- زر الحلقات دائري على اليمين -->
+  <button id="episodes-btn" aria-label="Episodes">📺</button>
+
+  <!-- قائمة الحلقات تظهر بجانبه -->
+  <div id="episodes-list" aria-hidden="true"></div>
 </div>
 
-</div><style>
-.watch-container {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    background: #000;
-    overflow: hidden;
-    color: #fff;
-    font-family: Arial, sans-serif;
-}
-
-#series-title {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 24px;
-    z-index: 10;
-}
-
-.video-feed {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.video-feed video {
-    width: 100%;
-    height: 100vh;
-    object-fit: cover;
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: none;
-}
-
-#play-btn {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 60px;
-    color: #00e676;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 20;
-}
-
-/* زر الحلقات أسفل الشاشة */
-.episodes-button-container {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 15;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-#episodes-btn {
-    font-size: 24px;
-    padding: 15px 25px;
-    border-radius: 12px;
-    background: rgba(0,0,0,0.6);
-    color: #00e676;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-#episodes-btn:hover {
-    background: rgba(0,230,118,0.8);
-    color: #000;
-}
-
-/* قائمة الحلقات */
-.episodes-list {
-    margin-top: 10px;
-    background: rgba(0,0,0,0.8);
-    border-radius: 12px;
-    padding: 10px;
-    max-height: 250px;
-    overflow-y: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.episodes-list button {
-    background: #111;
-    border: none;
-    color: #00e676;
-    font-size: 18px;
-    padding: 10px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.episodes-list button:hover {
-    background: #00e676;
-    color: #000;
-}
-
-.hidden { display: none; }
-</style><script>
-// منع Refresh عند السحب للأسفل
-document.body.addEventListener('touchmove', function(e){
-    if (e.target.closest('.watch-container')) {
-        e.preventDefault();
-    }
-}, { passive: false });
-
-// اسم المسلسل من الرابط
+<script>
+// ========================
+// إعدادات المسلسل (RAW links)
+// ========================
 const params = new URLSearchParams(window.location.search);
 const seriesName = params.get('series') || 'loveblack';
 document.getElementById('series-title').innerText = seriesName;
 
-// حلقات RAW
+// ضع هنا حلقاتك (Raw GitHub links) - يمكن تعديل / جلب ديناميكياً لاحقاً
 const episodes = [
-    `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4`,
-    `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4`,
-    `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep3.mp4`
+  `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep1.mp4?raw=1`,
+  `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep2.mp4?raw=1`,
+  `https://raw.githubusercontent.com/Alismbot/DevAli.github.io/main/assets/series/${seriesName}/ep3.mp4?raw=1`
 ];
 
-const feed = document.getElementById("video-feed");
-
-// إنشاء الفيديوهات
-let currentIndex = 0;
-const videoElements = episodes.map((url, i) => {
-    const vid = document.createElement("video");
-    vid.src = url;
-    vid.autoplay = false;
-    vid.loop = false;
-    vid.controls = false;
-    vid.style.zIndex = i === 0 ? 1 : 0;
-    feed.appendChild(vid);
-    return vid;
-});
-
-// إظهار أول فيديو
-videoElements[0].style.display = 'block';
-videoElements[0].play();
-
-// زر التشغيل في الوسط
+// عناصر DOM
+const feed = document.getElementById('video-feed');
 const playBtn = document.getElementById('play-btn');
-let isPlaying = true;
-
-playBtn.addEventListener('click', () => {
-    const vid = videoElements[currentIndex];
-    if (vid.paused) {
-        vid.play();
-        isPlaying = true;
-        playBtn.style.opacity = 0;
-    } else {
-        vid.pause();
-        isPlaying = false;
-        playBtn.style.opacity = 1;
-    }
-});
-
-// إظهار الزر عند النقر على الفيديو
-videoElements.forEach(v => {
-    v.addEventListener('click', () => {
-        playBtn.style.opacity = 1;
-        setTimeout(() => playBtn.style.opacity = 0, 1000);
-    });
-});
-
-// التحكم في السحب (Touch)
-let startY = 0;
-let endY = 0;
-
-feed.addEventListener('touchstart', (e) => {
-    startY = e.touches[0].clientY;
-});
-
-feed.addEventListener('touchend', (e) => {
-    endY = e.changedTouches[0].clientY;
-    const diff = startY - endY;
-
-    if (Math.abs(diff) > 50) {
-        if (diff > 0) {
-            // السحب لأعلى -> الحلقة التالية
-            if (currentIndex < videoElements.length -1) {
-                changeVideo(currentIndex + 1);
-            }
-        } else {
-            // السحب لأسفل -> الحلقة السابقة
-            if (currentIndex > 0) {
-                changeVideo(currentIndex - 1);
-            }
-        }
-    }
-});
-
-function changeVideo(newIndex) {
-    videoElements[currentIndex].pause();
-    videoElements[currentIndex].style.display = 'none';
-    videoElements[currentIndex].style.zIndex = 0;
-
-    currentIndex = newIndex;
-    videoElements[currentIndex].style.display = 'block';
-    videoElements[currentIndex].style.zIndex = 1;
-    videoElements[currentIndex].play();
-    isPlaying = true;
-}
-
-// زر الحلقات
 const episodesBtn = document.getElementById('episodes-btn');
 const episodesList = document.getElementById('episodes-list');
 
-episodesBtn.addEventListener('click', ()=>{
-    episodesList.classList.toggle('hidden');
-    if(!episodesList.classList.contains('hidden')) {
-        episodesList.innerHTML = '';
-        episodes.forEach((ep,i)=>{
-            const btn = document.createElement('button');
-            btn.textContent = i+1; // عرض كرقم فقط
-            btn.addEventListener('click', ()=>{
-                changeVideo(i);
-                episodesList.classList.add('hidden');
-            });
-            episodesList.appendChild(btn);
-        });
-    }
+// منع pull-to-refresh داخل الحاوية (يحاول منع السلوك في المتصفحات الحديثة)
+document.body.addEventListener('touchmove', function(e){
+  if (e.target.closest('.watch-container')) e.preventDefault();
+}, { passive:false });
+
+// ========================
+// إنشاء عناصر الفيديو
+// ========================
+let currentIndex = 0;
+const videoElements = episodes.map((url, i) => {
+  const v = document.createElement('video');
+  v.src = url;
+  v.autoplay = false;
+  v.loop = false;
+  v.controls = false;
+  v.playsInline = true;
+  v.preload = 'metadata';
+  v.style.zIndex = i === 0 ? 1 : 0;
+  feed.appendChild(v);
+  return v;
 });
+
+// إظهار وتشغيل الفيديو الأول
+videoElements[0].style.display = 'block';
+videoElements[0].play();
+
+// ========================
+// دوال مساعدة: تغيير فيديو
+// ========================
+function showVideo(index) {
+  if (index < 0 || index >= videoElements.length) return;
+  // إيقاف الحالي واخفاؤه
+  videoElements.forEach((vv, i) => {
+    if (i === index) {
+      vv.style.display = 'block';
+      vv.style.zIndex = 1;
+      // نلعب الفيديو المطلوب
+      vv.play().catch(()=>{});
+    } else {
+      vv.pause();
+      vv.currentTime = 0;
+      vv.style.display = 'none';
+      vv.style.zIndex = 0;
+    }
+  });
+  currentIndex = index;
+}
+
+// ========================
+// زر التشغيل في الوسط
+// - يظهر/يختفي مع نقرة الشاشة
+// - يعمل play/pause على الفيديو الحالي
+// ========================
+let uiHideTimer = null;
+function showUIButtons() {
+  // إظهار play و episodes
+  playBtn.classList.add('show');
+  episodesBtn.classList.add('show');
+  // اجعل playBtn يتلقى اللمسات
+  playBtn.style.pointerEvents = 'auto';
+  episodesBtn.style.pointerEvents = 'auto';
+
+  // إخفاء بعد 2 ثانية ما لم تفتح قائمة الحلقات
+  clearTimeout(uiHideTimer);
+  uiHideTimer = setTimeout(() => {
+    if (!episodesList.classList.contains('show')) {
+      playBtn.classList.remove('show');
+      episodesBtn.classList.remove('show');
+      playBtn.style.pointerEvents = 'none';
+      episodesBtn.style.pointerEvents = 'none';
+    }
+  }, 2000);
+}
+
+// اضغط على المساحة (feed) لإظهار/إخفاء الأزرار
+feed.addEventListener('click', (e) => {
+  // عرض الأزرار مؤقتًا
+  showUIButtons();
+});
+
+// عندما ينقر المستخدم زر التشغيل
+playBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const v = videoElements[currentIndex];
+  if (v.paused) {
+    v.play().catch(()=>{});
+    // نختفي فورًا (سلوك كهذا في تيك توك)
+    playBtn.classList.remove('show');
+    playBtn.style.pointerEvents = 'none';
+  } else {
+    v.pause();
+    // إبقاء الزر ظاهرًا بعد الإيقاف
+    showUIButtons();
+  }
+});
+
+// ========================
+// زر الحلقات: دائري على اليمين
+// - عند الضغط يفتح قائمة الحلقات (أرقام)
+// - عند اختيار رقم => تشغيل مباشرة
+// ========================
+episodesBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  // toggle قائمة الحلقات
+  if (episodesList.classList.contains('show')) {
+    episodesList.classList.remove('show');
+    episodesList.setAttribute('aria-hidden','true');
+  } else {
+    populateEpisodesList();
+    episodesList.classList.add('show');
+    episodesList.setAttribute('aria-hidden','false');
+    // إبقاء الأزرار مرئية طوال فتح القائمة
+    clearTimeout(uiHideTimer);
+    playBtn.classList.add('show');
+    episodesBtn.classList.add('show');
+    playBtn.style.pointerEvents = 'auto';
+    episodesBtn.style.pointerEvents = 'auto';
+  }
+});
+
+// ملء قائمة الحلقات بأزرار رقمية
+function populateEpisodesList(){
+  episodesList.innerHTML = '';
+  episodes.forEach((ep, i) => {
+    const b = document.createElement('button');
+    b.textContent = (i+1).toString();
+    b.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      // شغل الحلقة المختارة
+      showVideo(i);
+      // أغلق القائمة بعد الاختيار
+      episodesList.classList.remove('show');
+      episodesList.setAttribute('aria-hidden','true');
+      // اخفاء الأزرار بعد وقت قصير
+      clearTimeout(uiHideTimer);
+      uiHideTimer = setTimeout(()=> {
+        playBtn.classList.remove('show');
+        episodesBtn.classList.remove('show');
+        playBtn.style.pointerEvents = 'none';
+        episodesBtn.style.pointerEvents = 'none';
+      }, 1000);
+    });
+    episodesList.appendChild(b);
+  });
+}
+
+// إغلاق القائمة عند النقر في أي مكان خارجها
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.episodes-list') && !e.target.closest('#episodes-btn')) {
+    episodesList.classList.remove('show');
+    episodesList.setAttribute('aria-hidden','true');
+  }
+});
+
+// ========================
+// نظام التنقل بالسحب (touchstart/touchend)
+//: نحافظ على نفس منطقك: سحب أكثر من 50px ينتقل فيديو واحد فقط
+// ========================
+let startY = 0;
+feed.addEventListener('touchstart', (e) => {
+  // نسمح للنقرة بالوصول لعرض الأزرار، لكن نحفظ نقطة البداية
+  startY = e.touches[0].clientY;
+}, { passive:true });
+
+feed.addEventListener('touchend', (e) => {
+  const endY = e.changedTouches[0].clientY;
+  const diff = startY - endY;
+  const TH = 50; // العتبة كما كانت لديك
+
+  if (Math.abs(diff) > TH) {
+    if (diff > 0) {
+      // إلى الأعلى -> التالي
+      if (currentIndex < videoElements.length - 1) {
+        showVideo(currentIndex + 1);
+      }
+    } else {
+      // إلى الأسفل -> السابق
+      if (currentIndex > 0) {
+        showVideo(currentIndex - 1);
+      }
+    }
+  }
+}, { passive:true });
+
+// ========================
+// نهج إضافي لمنع refresh في بعض المتصفحات
+// (نمنع touchmove داخل الحاوية فقط حينما يكون التمرير عمودياً)
+// ========================
+let lastTouchY = 0;
+feed.addEventListener('touchmove', (e) => {
+  const ty = e.touches[0].clientY;
+  const dy = Math.abs(ty - lastTouchY);
+  // لو كان تحريك عمودي كبير، امنع السلوك الافتراضي (يحاول منع pull-to-refresh)
+  if (dy > 2) e.preventDefault && e.preventDefault();
+  lastTouchY = ty;
+}, { passive:false });
+
 </script>
+</body>
+</html>
