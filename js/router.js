@@ -1,6 +1,23 @@
+const protectedPages = ["_dev_panel"]; // ← اسم الصفحة المحمية
+
 async function loadPage() {
     const params = new URLSearchParams(window.location.search);
     const page = params.get("page") || "home";
+
+    // حماية صفحات المطور
+    if (protectedPages.includes(page)) {
+        let key = localStorage.getItem("devKey");
+
+        if (!key) {
+            key = prompt("ادخل مفتاح المطور:");
+            if (key !== "SUPER-DEV-KEY-123") { // ← غيّر المفتاح كما تريد
+                document.getElementById("app").innerHTML =
+                    "<h2>🚫 وصول مرفوض — مفتاح غير صحيح</h2>";
+                return;
+            }
+            localStorage.setItem("devKey", key);
+        }
+    }
 
     const app = document.getElementById("app");
 
